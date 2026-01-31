@@ -1,1 +1,1 @@
-https://github.com/KieferEbanks/CS412-assignments.git
+https://github.com/KieferEbanks/cs412.git
