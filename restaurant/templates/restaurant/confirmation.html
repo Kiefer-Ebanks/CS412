@@ -1,0 +1,18 @@
+<!-- File: restaurant/templates/restaurant/confirmation.html
+Author: Kiefer Ebanks (kebanks@bu.edu), 2/3/2026
+Description: The confirmation response html template for the restaurant app
+This is the confirmation page that displays the order details -->
+
+<html>
+    <head></head>
+        <title>Order Confirmation</title>
+    </head> 
+
+    <body>
+        <h1>Order Confirmation</h1>
+        <p>Thank you for your order, {{ name }}!</p>
+        <p>Your order for {{ quantity }} {{ item }}(s) has been received.</p>
+        <p>Total Price: ${{ total_price }}</p>
+        <p>Your food will be ready at: {{ pickup_time }}</p>
+    </body>
+</html>
