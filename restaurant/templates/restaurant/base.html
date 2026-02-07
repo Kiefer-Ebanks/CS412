@@ -7,9 +7,27 @@ Description: The base html template for the restaurant app -->
 <html>
     <head>
         <title> Order Page</title>
-        <!-- linking to the static css file for styling -->
+        <link rel="stylesheet" href="{% static 'restaurant_styles.css' %}"> <!-- linking to the static css file for styling -->
     </head>
     <body>
+        <nav>
+            <h2 class="restaurant-title">Red Cuts Steakhouse</h2>
+            <ul class="nav-links">
+                <li>
+                    <a href="{% url 'main' %}">Main</a>
+                </li>
+                <li>
+                    <a href="{% url 'order' %}">Order</a>
+                </li>
+            </ul>
+        </nav>
+
+        {% block content %}
+        {% endblock %}
+
+        <footer>
+            <p>Page created by Kiefer Ebanks (kebanks@bu.edu)</p>
+        </footer>
 
     </body>
 </html>
