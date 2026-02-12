@@ -12,7 +12,7 @@ class Profile(models.Model):
     # Defining the data attributes of the Profile model
     username = models.TextField()
     display_name = models.TextField()
-    profile_image_url = models.URLField()
+    profile_image_url = models.URLField(blank=True)
     bio_text = models.TextField()
     join_date = models.DateTimeField(auto_now=True)
 

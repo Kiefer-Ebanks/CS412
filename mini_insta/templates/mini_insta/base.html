@@ -1,0 +1,22 @@
+<!-- File: base.html -->
+<!-- Author: Kiefer Ebanks (kebanks@bu.edu), 2/12/2026 -->
+<!-- Description: The base template for the mini instagram app -->
+<!-- The base template for the mini instagram app that will be used to inherit by other templates -->
+
+{% load static %} <!-- loading static files for css styling -->
+
+<html>
+    <head>
+        <title>Mini Instagram</title>
+        <link rel="stylesheet" href="{% static 'styles-blog.css' %}"> <!-- linking to the static css file for styling -->
+    </head>
+    <body>
+        <head>
+            <h1>Mini Instagram</h1>
+        </head>
+
+        <!-- block content will be replaced by the content of the child templates -->
+        {% block content %}
+        {% endblock %}
+    </body>
+</html>

@@ -1,0 +1,27 @@
+<!-- File: show_all_profiles.html -->
+<!-- Author: Kiefer Ebanks (kebanks@bu.edu), 2/12/2026 -->
+<!-- Description: The page that displays all profiles -->
+<!-- The html template for all profiles that takes in context from the views.py ProfileListView function to display the profiles -->
+
+{% extends 'mini_insta/base.html' %} <!-- linking to the base.html template-->
+
+{% block content %}
+<html>
+    <head>
+        <title>All Profiles</title>
+    </head>
+
+    <div> 
+        {% for profile in profiles %}
+        <div>
+            <h2>{{ profile.username }}</h2>
+            <h3>{{ profile.display_name }}</h3>
+            <img src="{{ profile.profile_image_url }}" alt="Profile Image">
+            <p>{{ profile.bio_text }}</p>
+            <p>{{ profile.join_date }}</p>
+        </div>
+        <hr>
+        {% endfor %}
+    </div>
+</html>
+{% endblock %}
