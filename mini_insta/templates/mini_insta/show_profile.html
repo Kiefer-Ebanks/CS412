@@ -1,0 +1,48 @@
+<!-- File: show_profile.html -->
+<!-- Author: Kiefer Ebanks (kebanks@bu.edu), 2/13/2026 -->
+<!-- Description: The page that displays a single profile -->
+<!-- The html template for a single profile that takes in context from the views.py ProfileDetailView function to display the profile -->
+
+{% extends 'mini_insta/base.html' %} <!-- linking to the base.html template-->
+
+{% block content %}
+<html>
+    <head>
+        <title>Profile</title>
+    </head>
+
+    <main class="profile-container"> 
+        <div class="profile-content">
+            <div class="profile-left">
+                <h1 class="display-name">{{ profile.display_name }}</h1>
+                <div class="profile-info">
+                    <h2 class="username">{{ profile.username }}</h2>
+                    <div class="account-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">0</span>
+                            <span class="stat-label">posts</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">0</span>
+                            <span class="stat-label">followers</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">0</span>
+                            <span class="stat-label">following</span>
+                        </div>
+                    </div>
+                    <p class="join-date">Joined {{ profile.join_date}}</p>
+                </div>
+            </div>
+            
+            <div class="profile-image-container">
+                <img src="{{ profile.profile_image_url }}" alt="Profile Image" class="profile-image">
+            </div>
+        </div>
+        
+        <div class="profile-bio">
+            <p>{{ profile.bio_text }}</p>
+        </div>
+    </main>
+</html>
+{% endblock %}

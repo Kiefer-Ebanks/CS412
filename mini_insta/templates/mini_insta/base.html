@@ -8,15 +8,32 @@
 <html>
     <head>
         <title>Mini Instagram</title>
-        <link rel="stylesheet" href="{% static 'styles-blog.css' %}"> <!-- linking to the static css file for styling -->
+        <link rel="stylesheet" href="{% static 'mini_insta_styles.css' %}"> <!-- linking to the static css file for styling -->
     </head>
     <body>
-        <head>
+        <header>
             <h1>Mini Instagram</h1>
-        </head>
+            <nav>
+                <ul>
+                    <li>
+                        <a href="{% url 'show_all_profiles' %}">All Profiles</a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
 
         <!-- block content will be replaced by the content of the child templates -->
         {% block content %}
         {% endblock %}
+
+        <footer>
+            <nav>
+                <ul>
+                    <li>
+                        <a href="{% url 'show_all_profiles' %}">All Profiles</a>
+                    </li>
+                </ul>
+            </nav>
+        </footer>
     </body>
 </html>
