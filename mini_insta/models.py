@@ -21,4 +21,38 @@ class Profile(models.Model):
         ''' returns a string representation of the Profile model '''
         return f'{self.username}'
 
+    def get_all_posts(self):
+        ''' returns all posts for a profile '''
+        return Post.objects.filter(profile=self).order_by('timestamp')
 
+class Post(models.Model):
+    ''' models the data attributes of a post '''
+
+    # Defining the data attributes of the Post model
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    caption = models.TextField()
+    timestamp = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        ''' returns a string representation of the Post model '''
+        return f'{self.caption}'
+
+    def get_all_photos(self):
+        ''' returns all photos for a post '''
+        return Photo.objects.filter(post=self)
+
+
+class Photo(models.Model):
+    ''' models the data attributes of a photo '''
+
+    # Defining the data attributes of the Photo model
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    image_url = models.URLField(blank=True)
+    timestamp = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        ''' returns a string representation of the Photo model '''
+        return f'{self.image_url}'
+
+        
+    

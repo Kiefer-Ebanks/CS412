@@ -43,6 +43,20 @@
         <div class="profile-bio">
             <p>{{ profile.bio_text }}</p>
         </div>
+
+        <div class="profile-posts">
+                {% for post in profile.get_all_posts %}
+                    <div class="profile-post">
+                        {{ post.get_all_photos.first.image_url }}
+                        {% if post.get_all_photos.first.image_url %}
+                            <img src="{{ post.get_all_photos.first.image_url }}" alt="Photo Image" class="photo-image">
+                        {% else %}
+                            <img src="https://alliancehealthprofessionals.com/wp-content/themes/apexclinic/images/no-image/No-Image-Found-400x264.png" alt="No Photos Found" class="no-photos-image">
+                        {% endif %}
+                        <p>{{ post.caption }}</p>
+                    </div>
+                {% endfor %}     
+        </div>
     </main>
 </html>
 {% endblock %}
