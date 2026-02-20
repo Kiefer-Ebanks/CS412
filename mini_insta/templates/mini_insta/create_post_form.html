@@ -1,0 +1,28 @@
+<!-- File: create_post_form.html -->
+<!-- Author: Kiefer Ebanks (kebanks@bu.edu), 2/20/2026 -->
+<!-- Description: The form template for creating a new post -->
+<!-- The html template for the form to create a new post that takes in context from the views.py CreatePostView function to create the post -->
+
+{% extends 'mini_insta/base.html' %} <!-- linking to the base.html template-->
+
+{% block content %}
+<html>
+    <main>
+        <div class="post-container">
+
+            <!-- displaying the form to create a new post -->
+            <form action="{% url 'create_post' profile.pk %}" method="POST">
+                {% csrf_token %}
+                <table>
+                {{ form.as_table }}
+                </table>
+
+                <label for="image_url">Image URL:</label>
+                <input type="url" name="image_url" id="image_url">
+                <button type="submit">Create Post</button>
+                <button type="button" class="cancel-button">Cancel</button>
+            </form>
+        </div>
+    </main>
+</html>
+{% endblock %}
