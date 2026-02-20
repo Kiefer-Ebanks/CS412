@@ -203,6 +203,43 @@ main > .profile-container + .profile-container {
     font-size: 0.9em;
 }
 
+.profile-posts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 30px;
+}
+
+.profile-post {
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid #dbdbdb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafafa;
+}
+
+.profile-post a {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.photo-image,
+.no-photos-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
 .grid-container {
     background: #eee;
     max-width: 900px;
@@ -316,5 +353,132 @@ nav li {
     
     .account-stats {
         gap: 20px;
+    }
+    
+    .profile-posts {
+        gap: 6px;
+    }
+}
+
+/* Post page styles */
+.post-container {
+    max-width: 935px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 40px;
+    border-radius: 8px;
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+}
+
+.post-profile-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.post-profile-image-container {
+    width: 32px;
+    height: 32px;
+    overflow: hidden;
+    border-radius: 50%;
+    border: 1px solid #dbdbdb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.post-profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.post-profile-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.post-profile-name {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: #262626;
+    margin: 0;
+    padding: 0;
+}
+
+.post-timestamp {
+    color: #8e8e8e;
+    font-size: 0.9em;
+    margin: 0;
+    padding: 0;
+}
+
+.post-caption-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #dbdbdb;
+}
+
+.post-caption {
+    color: #262626;
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+.post-photos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.post-photo-item {
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid #dbdbdb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafafa;
+}
+
+.post-photo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+/* Responsive styles for post page */
+@media screen and (max-width: 760px) {
+    .post-container {
+        padding: 20px;
+        margin: 20px;
+    }
+    
+    .post-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .post-photos-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
     }
 }
