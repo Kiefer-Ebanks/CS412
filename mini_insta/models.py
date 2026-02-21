@@ -4,6 +4,7 @@
 # Creating the models for the mini instagram app
 
 from django.db import models
+#from django.urls import reverse
 
 # Create your models here.
 class Profile(models.Model):
@@ -40,6 +41,10 @@ class Post(models.Model):
     def get_all_photos(self):
         ''' returns all photos for a post '''
         return Photo.objects.filter(post=self)
+
+    #def get_absolute_url(self):
+    #    ''' returns the absolute url for a post '''
+    #    return reverse('show_post', kwargs={'pk': self.pk})
 
 
 class Photo(models.Model):

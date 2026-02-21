@@ -11,8 +11,11 @@
         <div class="post-container">
 
             <!-- displaying the form to create a new post -->
+            
             <form action="{% url 'create_post' profile.pk %}" method="POST">
+
                 {% csrf_token %}
+
                 <table>
                 {{ form.as_table }}
                 </table>
@@ -20,7 +23,11 @@
                 <label for="image_url">Image URL:</label>
                 <input type="url" name="image_url" id="image_url">
                 <button type="submit">Create Post</button>
+
+                <a href="{% url 'show_profile' profile.pk %}">
                 <button type="button" class="cancel-button">Cancel</button>
+                </a>
+                
             </form>
         </div>
     </main>
