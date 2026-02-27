@@ -12,7 +12,7 @@
 
             <!-- displaying the form to create a new post -->
             
-            <form action="{% url 'create_post' profile.pk %}" method="POST">
+            <form action="{% url 'create_post' profile.pk %}" method="POST" enctype="multipart/form-data">
 
                 {% csrf_token %}
 
@@ -20,8 +20,8 @@
                 {{ form.as_table }}
                 </table>
 
-                <label for="image_url">Image URL:</label>
-                <input type="url" name="image_url" id="image_url">
+                <label for="files">Images:</label>
+                <input type="file" attribute="multiple" name="files">
                 <button type="submit">Create Post</button>
 
                 <a href="{% url 'show_profile' profile.pk %}">

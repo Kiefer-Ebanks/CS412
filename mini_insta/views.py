@@ -56,10 +56,16 @@ class CreatePostView(CreateView):
         
         post = form.save() # save the post so it has a pk in the database
         
-        image_url = self.request.POST.get('image_url', '') # getting the image_url from the POST request
+        # Commenting out the previous image_url code for now to focus on the image_file code
+        # image_url = self.request.POST.get('image_url', '') # getting the image_url from the POST request
         
-        if image_url:
-            Photo.objects.create(post=post, image_url=image_url) # create a new Photo object with the saved post as the foreign key
+        # if image_url:
+        #     Photo.objects.create(post=post, image_url=image_url) # create a new Photo object with the saved post as the foreign key
+
+        # Read the data from self.request.FILES
+        files = self.request.FILES.getlist('files')
+        for file in files:
+            Photo.objects.create(post=post, image_file=file) # create a new Photo object for each file with the saved post as the foreign key
 
         return super().form_valid(form) # delegate work to the super class of the form_valid method
 
