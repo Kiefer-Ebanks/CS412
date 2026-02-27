@@ -33,7 +33,7 @@
             <div class="post-photos-grid">
                 {% for photo in post.get_all_photos %}
                 <div class="post-photo-item">
-                    <img src="{{ photo.image_url }}" alt="Post Photo" class="post-photo-image">
+                        <img src="{{ photo.get_image_url }}" alt="Post Photo" class="post-photo-image">
                 </div>
                 {% endfor %}
             </div>

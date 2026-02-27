@@ -25,4 +25,6 @@ urlpatterns = [
     path('quotes/', include('quotes.urls')),
     path('restaurant/', include('restaurant.urls')),
     path('mini_insta/', include('mini_insta.urls')), # NEW URL for the mini instagram app
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) # configuring static files serving
+] 
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) # configuring static files serving
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # configuring media files serving
