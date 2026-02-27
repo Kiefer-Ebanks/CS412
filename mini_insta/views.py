@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.urls import reverse # Importing the reverse function to redirect to the profile page
 
-from django.views.generic import ListView, DetailView, CreateView, UpdateView # Importing the ListView and DetailView classes
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView # Importing the ListView and DetailView classes
 from .models import Profile, Post, Photo # Importing the Profile, Photo, and Post models from the models.py file
-from .forms import CreatePostForm # Importing the CreatePostForm from the forms.py file
+from .forms import CreatePostForm, UpdatePostForm # Importing the CreatePostForm and UpdatePostForm from the forms.py file
 from .forms import UpdateProfileForm # Importing the UpdateProfileForm from the forms.py file
 from django.urls import reverse # Importing the reverse function to redirect to the profile page
 # Create your views here.
@@ -82,3 +82,41 @@ class UpdateProfileView(UpdateView):
     form_class = UpdateProfileForm
     template_name = 'mini_insta/update_profile_form.html'
     context_object_name = 'profile' # using singular variable name for the profile object
+
+class DeletePostView(DeleteView):
+    ''' A view to delete a post '''
+
+    model = Post
+    template_name = 'mini_insta/delete_post_form.html'
+    context_object_name = 'post' # using singular variable name for the post object
+
+    def get_context_data(self, **kwargs):
+        ''' Add profile object to context based on this post '''
+        context = super().get_context_data(**kwargs)
+        post = self.object
+        context['profile'] = post.profile
+        return context
+
+    def get_success_url(self):
+        ''' Redirect to the profile page '''
+        return reverse('show_profile', kwargs={'pk': self.object.profile.pk}) # redirect to the show_profile view with the pk of the profile that the post belongs to
+
+
+class UpdatePostView(UpdateView):
+    ''' A view to update a post '''
+
+    model = Post
+    form_class = UpdatePostForm
+    template_name = 'mini_insta/update_post_form.html'
+    context_object_name = 'post' # using singular variable name for the post object
+
+    def get_context_data(self, **kwargs):
+        ''' Add profile object to context based on this post '''
+        context = super().get_context_data(**kwargs)
+        post = self.object
+        context['profile'] = post.profile
+        return context
+
+    def get_success_url(self):
+        ''' Redirect to the post page '''
+        return reverse('show_post', kwargs={'pk': self.object.pk}) # redirect to the show_post view with the pk of the post that was just updated

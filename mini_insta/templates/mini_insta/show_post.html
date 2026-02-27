@@ -29,6 +29,9 @@
             <div class="post-caption-section">
                 <p class="post-caption">{{ post.caption }}</p>
             </div>
+
+            <a href="{% url 'delete_post' post.pk %}"><button type="button">Delete Post</button></a>
+            <a href="{% url 'update_post' post.pk %}"><button type="button">Update Post</button></a>
             
             <div class="post-photos-grid">
                 {% for photo in post.get_all_photos %}
