@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from django.urls import reverse # Importing the reverse function to redirect to the profile page
 
-from django.views.generic import ListView, DetailView, CreateView # Importing the ListView and DetailView classes
+from django.views.generic import ListView, DetailView, CreateView, UpdateView # Importing the ListView and DetailView classes
 from .models import Profile, Post, Photo # Importing the Profile, Photo, and Post models from the models.py file
 from .forms import CreatePostForm # Importing the CreatePostForm from the forms.py file
+from .forms import UpdateProfileForm # Importing the UpdateProfileForm from the forms.py file
 from django.urls import reverse # Importing the reverse function to redirect to the profile page
 # Create your views here.
 
@@ -71,5 +72,13 @@ class CreatePostView(CreateView):
 
     def get_success_url(self):
         ''' Redirect to the profile page '''
-
         return reverse('show_post', kwargs={'pk': self.object.pk}) # redirect to the show_post view with the pk of the post that was just created
+
+
+class UpdateProfileView(UpdateView):
+    ''' A view to update a profile '''
+
+    model = Profile
+    form_class = UpdateProfileForm
+    template_name = 'mini_insta/update_profile_form.html'
+    context_object_name = 'profile' # using singular variable name for the profile object
