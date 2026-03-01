@@ -16,16 +16,22 @@
                     <h2 class="username">{{ profile.username }}</h2>
                     <div class="account-stats">
                         <div class="stat-item">
-                            <span class="stat-number">0</span>
+                            <span class="stat-number">{{ profile.get_all_posts.count }}</span>
                             <span class="stat-label">posts</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-number">0</span>
-                            <span class="stat-label">followers</span>
+                            <a href="{% url 'show_followers' profile.pk %}" class="stat-link">
+                                <span class="stat-number">{{ profile.get_num_followers }}</span>
+                                <span class="stat-label">followers</span>
+                            </a>
                         </div>
+
                         <div class="stat-item">
-                            <span class="stat-number">0</span>
-                            <span class="stat-label">following</span>
+
+                            <a href="{% url 'show_following' profile.pk %}" class="stat-link">
+                                <span class="stat-number">{{ profile.get_num_following }}</span>
+                                <span class="stat-label">following</span>
+                            </a>
                         </div>
                     </div>
                     <p class="join-date">Joined {{ profile.join_date}}</p>

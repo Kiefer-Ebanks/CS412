@@ -30,6 +30,7 @@
                 <p class="post-caption">{{ post.caption }}</p>
             </div>
 
+
             <a href="{% url 'delete_post' post.pk %}"><button type="button">Delete Post</button></a>
             <a href="{% url 'update_post' post.pk %}"><button type="button">Update Post</button></a>
             
@@ -40,6 +41,36 @@
                 </div>
                 {% endfor %}
             </div>
+
+            <div class="post-likes-section">
+                {% with total_likes=post.get_likes.count %}
+                {% if total_likes > 0 %}
+                <p class="post-like-text">
+                    Liked by
+                    {% if total_likes > 3 %}
+                        {% for like in post.get_likes %}
+                            {% if forloop.first %}
+                            <a href="{% url 'show_profile' like.profile.pk %}">{{ like.profile.display_name }}</a> and {{ total_likes|add:"-1" }} others
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        {% for like in post.get_likes %}
+                            <a href="{% url 'show_profile' like.profile.pk %}">{{ like.profile.display_name }}</a>{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </p>
+                {% endif %}
+                {% endwith %}
+            </div>
+
+            <div class="post-comments-section">
+                {% for comment in post.get_all_comments %}
+                <div class="post-comment-item">
+                    <p class="post-comment-text"><a href="{% url 'show_profile' comment.profile.pk %}">{{ comment.profile.display_name }}</a>  {{ comment.text }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
         </div>
     </main>
 </html>

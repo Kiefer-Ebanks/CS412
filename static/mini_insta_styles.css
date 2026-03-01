@@ -174,6 +174,13 @@ main > .profile-container + .profile-container {
     gap: 5px;
 }
 
+.stat-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
 .stat-number {
     font-size: 1.2em;
     font-weight: 600;
@@ -270,6 +277,81 @@ article.featured {
     align-items: center;
     justify-content: center;
     margin: 0 auto;
+}
+
+/* Followers / Following list (show_followers.html, show_following.html) */
+.follow-list-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    padding: 0 20px;
+}
+
+.follow-list-title {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.follow-list-title .profile-link-heading {
+    color: inherit;
+    text-decoration: none;
+}
+
+.follow-list-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px 32px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    border: 1px solid #dbdbdb;
+}
+
+.followers-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.follower-item {
+    display: flex;
+    align-items: center;
+}
+
+.follower-item-link {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.follower-avatar {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 50%;
+    border: 2px solid #dbdbdb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.follower-avatar .follower-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.follower-name {
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #262626;
 }
 
 article img, article.featured img {
@@ -460,6 +542,28 @@ nav li {
     line-height: 1.6;
     margin: 0;
     padding: 0;
+}
+
+.post-likes-section {
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+.post-like-text {
+    margin: 0;
+    color: #262626;
+    font-size: 0.95em;
+}
+
+.post-like-text a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.post-comments-section .post-comment-text a,
+.post-comment-text a {
+    color: inherit;
+    text-decoration: none;
 }
 
 .post-photos-grid {

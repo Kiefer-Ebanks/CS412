@@ -120,3 +120,33 @@ class UpdatePostView(UpdateView):
     def get_success_url(self):
         ''' Redirect to the post page '''
         return reverse('show_post', kwargs={'pk': self.object.pk}) # redirect to the show_post view with the pk of the post that was just updated
+
+
+class ShowFollowersDetailView(DetailView):
+    ''' A view to display the followers of a profile '''
+
+    model = Profile
+    template_name = 'mini_insta/show_followers.html'
+    context_object_name = 'profile' # using singular variable name for the profile object
+
+    def get_context_data(self, **kwargs):
+        ''' Add followers to context '''
+        context = super().get_context_data(**kwargs)
+        profile = self.object
+        context['followers'] = profile.get_followers()
+        return context
+
+
+class ShowFollowingDetailView(DetailView):
+    ''' A view to display the profiles that a profile follows '''
+
+    model = Profile
+    template_name = 'mini_insta/show_following.html'
+    context_object_name = 'profile' # using singular variable name for the profile object
+
+    def get_context_data(self, **kwargs):
+        ''' Add following to context '''
+        context = super().get_context_data(**kwargs)
+        profile = self.object
+        context['following'] = profile.get_following()
+        return context
