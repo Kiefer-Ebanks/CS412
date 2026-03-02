@@ -39,6 +39,9 @@
                     </li>
                     {% if profile %}
                     <li>
+                        <a href="{% url 'search' profile.pk %}">Search</a>
+                    </li>
+                    <li>
                         <a href="{% url 'show_profile' profile.pk %}">Profile</a>
                     </li>
                     {% endif %}

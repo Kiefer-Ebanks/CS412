@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.urls import reverse # Importing the reverse function to redirect to the profile page
+from django.http import Http404 # Importing the Http404 class to raise a 404 error if the profile does not exist
+from django.db.models import Q # Importing the Q object to filter the profiles and posts
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView # Importing the ListView and DetailView classes
 from .models import Profile, Post, Photo # Importing the Profile, Photo, and Post models from the models.py file
@@ -175,4 +177,50 @@ class PostFeedListView(ListView):
         ''' Add profile to context for the feed heading '''
         context = super().get_context_data(**kwargs)
         context['profile'] = Profile.objects.get(pk=self.kwargs['pk'])
+        return context
+
+
+class SearchView(ListView):
+    ''' A ListView for search results (Profiles and Posts). Search is done on behalf of the profile specified by pk. '''
+
+    template_name = 'mini_insta/search_results.html'
+    context_object_name = 'object_list'
+
+    def dispatch(self, request, *args, **kwargs):
+        ''' If query is absent from GET, show the search form; otherwise run the ListView. '''
+
+        if 'query' not in self.request.GET:
+            try:
+                profile = Profile.objects.get(pk=self.kwargs['pk'])
+            except Profile.DoesNotExist:
+                raise Http404("No Profile matches the given query.") # raise a 404 error if the profile does not exist
+
+            return render(request, 'mini_insta/search.html', {'profile': profile})
+
+        return super().dispatch(request, *args, **kwargs) # delegate work to the super class of the dispatch method
+
+    def get_queryset(self):
+        ''' Return Posts whose caption contains the search query. '''
+
+        query = self.request.GET['query'].strip() # get the search query from the GET request
+        return Post.objects.filter(caption__icontains=query) # return posts whose caption contains the search query
+
+    def get_context_data(self, **kwargs):
+        ''' Add profile, query, matching posts, and matching profiles to context. '''
+
+        context = super().get_context_data(**kwargs)
+        try:
+            profile = Profile.objects.get(pk=self.kwargs['pk'])
+        except Profile.DoesNotExist:
+            raise Http404("No Profile matches the given query.") # raise a 404 error if the profile does not exist
+
+        query = self.request.GET['query'].strip() # get the search query from the GET request
+        context['profile'] = profile
+        context['query'] = query
+        context['posts'] = self.get_queryset()
+        context['profiles'] = Profile.objects.filter(
+            Q(username__icontains=query) |
+            Q(display_name__icontains=query) |
+            Q(bio_text__icontains=query)
+        )
         return context
