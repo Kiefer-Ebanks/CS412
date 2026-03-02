@@ -31,6 +31,13 @@ class PostDetailView(DetailView):
     template_name = 'mini_insta/show_post.html'
     context_object_name = 'post' # using singular variable name for the post object
 
+    def get_context_data(self, **kwargs):
+        ''' Add profile object to context based on this post '''
+        context = super().get_context_data(**kwargs)
+        post = self.object
+        context['profile'] = post.profile
+        return context
+
 
 class CreatePostView(CreateView):
     ''' A view to create a new post '''
@@ -149,4 +156,23 @@ class ShowFollowingDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         profile = self.object
         context['following'] = profile.get_following()
+        return context
+
+
+class PostFeedListView(ListView):
+    ''' A ListView that displays the post feed for a profile (posts from profiles they follow) '''
+
+    model = Post
+    template_name = 'mini_insta/show_feed.html'
+    context_object_name = 'post_feed'
+
+    def get_queryset(self):
+        ''' Return posts from profiles that this profile follows '''
+        profile = Profile.objects.get(pk=self.kwargs['pk'])
+        return profile.get_post_feed()
+
+    def get_context_data(self, **kwargs):
+        ''' Add profile to context for the feed heading '''
+        context = super().get_context_data(**kwargs)
+        context['profile'] = Profile.objects.get(pk=self.kwargs['pk'])
         return context
