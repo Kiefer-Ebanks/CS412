@@ -31,8 +31,10 @@
             </div>
 
 
+            {% if request.user.is_authenticated and post.profile.user == request.user %}
             <a href="{% url 'delete_post' post.pk %}"><button type="button">Delete Post</button></a>
             <a href="{% url 'update_post' post.pk %}"><button type="button">Update Post</button></a>
+            {% endif %}
             
             <div class="post-photos-grid">
                 {% for photo in post.get_all_photos %}

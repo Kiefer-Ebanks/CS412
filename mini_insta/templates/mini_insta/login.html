@@ -13,11 +13,6 @@
             <form action="{% url 'login' %}" method="post" class="profile-edit-form">
                 {% csrf_token %}
 
-                {% if form.non_field_errors %}
-                <div class="form-errors">
-                    {{ form.non_field_errors }}
-                </div>
-                {% endif %}
 
                 <div class="form-group">
                     <label for="{{ form.username.id_for_label }}">Username</label>
@@ -39,6 +34,11 @@
 
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Login</button>
+                    {% if request.GET.next %}
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
+                    {% else %}
+                    <input type="hidden" name="next" value="{% url 'show_all_profiles' %}">
+                    {% endif %}
                 </div>
             </form>
         </div>
