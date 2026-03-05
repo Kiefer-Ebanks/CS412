@@ -45,7 +45,24 @@
                         <a href="{% url 'show_profile' profile.pk %}">Profile</a>
                     </li>
                     {% endif %}
+                    {% if request.user.is_authenticated %}
+                    <li class="header-auth-item">
+                        <span class="header-auth-user">Logged in as {{ request.user }}</span>
+                        <form action="{% url 'logout' %}" method="post" class="header-auth-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary">Log out</button>
+                        </form>
+                    </li>
+                    {% else %}
+                    <li class="header-auth-item">
+                        <form action="{% url 'login' %}" method="post" class="header-auth-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </form>
+                    </li>
+                    {% endif %}
                 </ul>
+
             </nav>
         </header>
 

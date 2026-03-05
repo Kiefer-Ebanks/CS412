@@ -3,12 +3,24 @@ from django.urls import reverse # Importing the reverse function to redirect to 
 from django.http import Http404 # Importing the Http404 class to raise a 404 error if the profile does not exist
 from django.db.models import Q # Importing the Q object to filter the profiles and posts
 
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView # Importing the ListView and DetailView classes
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView # Importing the ListView, DetailView, CreateView, UpdateView, DeleteView, and TemplateView classes
 from .models import Profile, Post, Photo # Importing the Profile, Photo, and Post models from the models.py file
 from .forms import CreatePostForm, UpdatePostForm # Importing the CreatePostForm and UpdatePostForm from the forms.py file
 from .forms import UpdateProfileForm # Importing the UpdateProfileForm from the forms.py file
 from django.urls import reverse # Importing the reverse function to redirect to the profile page
+
+from django.contrib.auth.mixins import LoginRequiredMixin # Will use to ensure a user is logged in in order to view the page
+from django.contrib.auth.views import LogoutView # Will use to log out the user and redirect to the logged out page
+
+
 # Create your views here.
+
+class myLoginRequiredMixin(LoginRequiredMixin):
+    ''' A custom login required mixin that redirects to the login page if the user is not logged in '''
+
+    def get_login_url(self):
+        ''' Redirect to the login page '''
+        return reverse('login') # redirect to the login view
 
 
 class ProfileListView(ListView):
@@ -41,7 +53,7 @@ class PostDetailView(DetailView):
         return context
 
 
-class CreatePostView(CreateView):
+class CreatePostView(myLoginRequiredMixin, CreateView):
     ''' A view to create a new post '''
 
     model = Post
@@ -83,8 +95,12 @@ class CreatePostView(CreateView):
         ''' Redirect to the profile page '''
         return reverse('show_post', kwargs={'pk': self.object.pk}) # redirect to the show_post view with the pk of the post that was just created
 
+    def get_login_url(self):
+        ''' Redirect to the login page '''
+        return reverse('login') # redirect to the login view
 
-class UpdateProfileView(UpdateView):
+
+class UpdateProfileView(myLoginRequiredMixin, UpdateView):
     ''' A view to update a profile '''
 
     model = Profile
@@ -92,7 +108,7 @@ class UpdateProfileView(UpdateView):
     template_name = 'mini_insta/update_profile_form.html'
     context_object_name = 'profile' # using singular variable name for the profile object
 
-class DeletePostView(DeleteView):
+class DeletePostView(myLoginRequiredMixin, DeleteView):
     ''' A view to delete a post '''
 
     model = Post
@@ -111,7 +127,7 @@ class DeletePostView(DeleteView):
         return reverse('show_profile', kwargs={'pk': self.object.profile.pk}) # redirect to the show_profile view with the pk of the profile that the post belongs to
 
 
-class UpdatePostView(UpdateView):
+class UpdatePostView(myLoginRequiredMixin, UpdateView):
     ''' A view to update a post '''
 
     model = Post
@@ -161,7 +177,7 @@ class ShowFollowingDetailView(DetailView):
         return context
 
 
-class PostFeedListView(ListView):
+class PostFeedListView(myLoginRequiredMixin, ListView):
     ''' A ListView that displays the post feed for a profile (posts from profiles they follow) '''
 
     model = Post
@@ -180,7 +196,7 @@ class PostFeedListView(ListView):
         return context
 
 
-class SearchView(ListView):
+class SearchView(myLoginRequiredMixin, ListView):
     ''' A ListView for search results (Profiles and Posts). Search is done on behalf of the profile specified by pk. '''
 
     template_name = 'mini_insta/search_results.html'
@@ -224,3 +240,10 @@ class SearchView(ListView):
             Q(bio_text__icontains=query)
         )
         return context
+
+class LoggedOutView(TemplateView):
+    ''' A view to display the logged out page '''
+
+    template_name = 'mini_insta/logged_out.html'
+
+

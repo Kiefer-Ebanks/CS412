@@ -6,6 +6,8 @@
 from django.urls import path
 from .views import * #ProfileListView, ProfileDetailView, PostDetailView
 
+from django.contrib.auth import views as auth_views # importing the views for the authentication system
+
 # Creating the url paths for the mini instagram app
 urlpatterns = [
     path(r'', ProfileListView.as_view(), name='show_all_profiles'),
@@ -19,4 +21,10 @@ urlpatterns = [
     path(r'profile/<int:pk>/following/', ShowFollowingDetailView.as_view(), name='show_following'),
     path(r'profile/<int:pk>/feed', PostFeedListView.as_view(), name='show_feed'), # Display the post feed for a profile. Using the url pattern name 'show_feed' instead of home because it would conflict with the home view in my quotes app
     path(r'profile/<int:pk>/search', SearchView.as_view(), name='search'),
+
+    # Authentication URLs
+    path(r'login/', auth_views.LoginView.as_view(template_name='mini_insta/login.html'), name='login'), # providing the template and login form via the 
+    #path(r'logout/', auth_views.LogoutView.as_view(next_page='show_all_profiles'), name='logout'), # redirecting to the show_all_profiles page after the user logs out
+    path(r'logout/', auth_views.LogoutView.as_view(next_page='logout_confirmation'), name='logout'), # providing the template and logout form via the auth_views.LogoutView
+    path(r'logout_confirmation/', LoggedOutView.as_view(), name='logout_confirmation'), # providing the template and logout form via the auth_views.LogoutView
 ]
