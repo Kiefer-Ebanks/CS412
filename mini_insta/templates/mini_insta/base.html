@@ -32,20 +32,24 @@
                         <a href="{% url 'show_all_profiles' %}">All Profiles</a>
                     </li>
 
-                    <!-- URLs only for the logged-in user who owns this profile -->
-                    {% if request.user.is_authenticated and profile and request.user == profile.user %}
+                    <!-- Link to own profile and log out for any logged-in user -->
+                    {% if request.user.is_authenticated %}
                     <li>
-                        <a href="{% url 'show_feed' profile.pk %}">Home</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'search' profile.pk %}">Search</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'show_profile' profile.pk %}">Profile</a>
+                        <a href="{% url 'show_my_profile' %}">My profile</a>
                     </li>
                     {% endif %}
 
-                    <!-- URLs for authenticated users only -->
+                    <!-- URLs only for the logged-in user who owns this profile -->
+                    {% if request.user.is_authenticated and profile and request.user == profile.user %}
+                    <li>
+                        <a href="{% url 'show_feed' %}">Home</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'search' %}">Search</a>
+                    </li>
+                    {% endif %}
+
+                    <!-- Log out for authenticated users -->
                     {% if request.user.is_authenticated %}
                     <li class="header-auth-item">
                         <span class="header-auth-user">Logged in as {{ request.user }}</span>
@@ -81,10 +85,10 @@
                     <!-- URLs only for the logged-in user who owns this profile -->
                     {% if request.user.is_authenticated and profile and request.user == profile.user %}
                     <li>
-                        <a href="{% url 'create_post' profile.pk %}">Create Post</a>
+                        <a href="{% url 'create_post' %}">Create Post</a>
                     </li>
                     <li>
-                        <a href="{% url 'update_profile' profile.pk %}">Update Profile</a>
+                        <a href="{% url 'update_profile' %}">Update Profile</a>
                     </li>
                     {% endif %}
 

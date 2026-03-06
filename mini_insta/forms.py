@@ -14,6 +14,14 @@ class CreatePostForm(forms.ModelForm):
         fields = ['caption']
 
 
+class CreateProfileForm(forms.ModelForm):
+    ''' A form to create a new profile (username, display_name, bio_text, profile_image_url). User is set in the view. '''
+
+    class Meta:
+        model = Profile
+        fields = ['username', 'display_name', 'bio_text', 'profile_image_url']
+
+
 class UpdateProfileForm(forms.ModelForm):
     ''' A form to update a profile '''
 
