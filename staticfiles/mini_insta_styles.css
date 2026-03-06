@@ -86,6 +86,33 @@ header .header-nav-right a {
     font-size: 1.2em;
 }
 
+header .header-auth-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    flex-wrap: nowrap;
+}
+
+header .header-auth-user {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #767f7e;
+    font-size: 1em;
+    flex-shrink: 0;
+}
+
+header .header-auth-form {
+    display: inline;
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+header .header-auth-form .btn {
+    font-size: 0.95em;
+}
+
 footer {
     text-align: center;
     margin: 40px auto;
@@ -904,4 +931,25 @@ nav li {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Auth pages (login / logged out) – reuse card and form layout */
+.profile-content .form-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.profile-edit-form .form-errors {
+    grid-column: 1 / -1;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    color: #c0392b;
+}
+
+.auth-message {
+    text-align: center;
+    margin: 0 0 16px 0;
+    color: #262626;
 }

@@ -20,6 +20,10 @@ urlpatterns = [
     path(r'post/<int:pk>/update/', UpdatePostView.as_view(), name='update_post'),
     path(r'profile/<int:pk>/followers/', ShowFollowersDetailView.as_view(), name='show_followers'),
     path(r'profile/<int:pk>/following/', ShowFollowingDetailView.as_view(), name='show_following'),
+    path(r'profile/<int:pk>/follow', FollowView.as_view(), name='follow'),
+    path(r'profile/<int:pk>/delete_follow', DeleteFollowView.as_view(), name='delete_follow'),
+    path(r'post/<int:pk>/like', LikeView.as_view(), name='like'),
+    path(r'post/<int:pk>/delete_like', DeleteLikeView.as_view(), name='delete_like'),
     path(r'profile/feed', PostFeedListView.as_view(), name='show_feed'), # Display the post feed for the logged-in user's profile
     path(r'profile/search', SearchView.as_view(), name='search'),
 

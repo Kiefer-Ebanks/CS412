@@ -1,10 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse # Importing the reverse function to redirect to the profile page
 from django.http import Http404 # Importing the Http404 class to raise a 404 error if the profile does not exist
 from django.db.models import Q # Importing the Q object to filter the profiles and posts
 
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView # Importing the ListView, DetailView, CreateView, UpdateView, DeleteView, and TemplateView classes
-from .models import Profile, Post, Photo # Importing the Profile, Photo, and Post models from the models.py file
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView, View  # Generic views
+from .models import Profile, Post, Photo, Follow, Like  # Importing models from models.py
 from .forms import CreatePostForm, UpdatePostForm, CreateProfileForm # Importing forms from forms.py
 from .forms import UpdateProfileForm # Importing the UpdateProfileForm from the forms.py file
 from django.urls import reverse # Importing the reverse function to redirect to the profile page
@@ -107,6 +107,19 @@ class ProfileDetailView(DetailView):
     template_name = 'mini_insta/show_profile.html'
     context_object_name = 'profile' # using singular variable name for the profile object
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        profile = self.object
+        context['is_own_profile'] = False
+        context['already_follows'] = False
+        if self.request.user.is_authenticated:
+            my_profile = Profile.objects.filter(user=self.request.user).order_by('pk').first()
+            if my_profile:
+                context['is_own_profile'] = (my_profile == profile)
+                if not context['is_own_profile']:
+                    context['already_follows'] = Follow.objects.filter(profile=profile, follower_profile=my_profile).exists()
+        return context
+
 
 class MyProfileDetailView(myLoginRequiredMixin, DetailView):
     ''' A view to display the logged-in user's own profile (no pk in URL). '''
@@ -128,10 +141,18 @@ class PostDetailView(DetailView):
     context_object_name = 'post' # using singular variable name for the post object
 
     def get_context_data(self, **kwargs):
-        ''' Add profile object to context based on this post '''
+        ''' Add profile, is_own_post, user_likes_post to context '''
         context = super().get_context_data(**kwargs)
         post = self.object
         context['profile'] = post.profile
+        context['is_own_post'] = False
+        context['user_likes_post'] = False
+        if self.request.user.is_authenticated:
+            my_profile = Profile.objects.filter(user=self.request.user).order_by('pk').first()
+            if my_profile:
+                context['is_own_post'] = (post.profile == my_profile)
+                if not context['is_own_post']:
+                    context['user_likes_post'] = Like.objects.filter(post=post, profile=my_profile).exists()
         return context
 
 
@@ -321,6 +342,49 @@ class SearchView(myLoginRequiredMixin, ListView):
             Q(bio_text__icontains=query)
         )
         return context
+
+
+class FollowView(myLoginRequiredMixin, View):
+    ''' Logged-in user follows the profile specified by pk. Redirects back to that profile. '''
+
+    def get(self, request, *args, **kwargs):
+        my_profile = get_profile_for_user(request.user)
+        other_profile = get_object_or_404(Profile, pk=kwargs['pk'])
+        if my_profile != other_profile and not Follow.objects.filter(profile=other_profile, follower_profile=my_profile).exists():
+            Follow.objects.create(profile=other_profile, follower_profile=my_profile)
+        return redirect('show_profile', pk=other_profile.pk)
+
+
+class DeleteFollowView(myLoginRequiredMixin, View):
+    ''' Logged-in user unfollows the profile specified by pk. Redirects back to that profile. '''
+
+    def get(self, request, *args, **kwargs):
+        my_profile = get_profile_for_user(request.user)
+        other_profile = get_object_or_404(Profile, pk=kwargs['pk'])
+        Follow.objects.filter(profile=other_profile, follower_profile=my_profile).delete()
+        return redirect('show_profile', pk=other_profile.pk)
+
+
+class LikeView(myLoginRequiredMixin, View):
+    ''' Logged-in user likes the post specified by pk. Redirects back to that post. '''
+
+    def get(self, request, *args, **kwargs):
+        my_profile = get_profile_for_user(request.user)
+        post = get_object_or_404(Post, pk=kwargs['pk'])
+        if post.profile != my_profile and not Like.objects.filter(post=post, profile=my_profile).exists():
+            Like.objects.create(post=post, profile=my_profile)
+        return redirect('show_post', pk=post.pk)
+
+
+class DeleteLikeView(myLoginRequiredMixin, View):
+    ''' Logged-in user unlikes the post specified by pk. Redirects back to that post. '''
+
+    def get(self, request, *args, **kwargs):
+        my_profile = get_profile_for_user(request.user)
+        post = get_object_or_404(Post, pk=kwargs['pk'])
+        Like.objects.filter(post=post, profile=my_profile).delete()
+        return redirect('show_post', pk=post.pk)
+
 
 class LoggedOutView(TemplateView):
     ''' A view to display the logged out page '''

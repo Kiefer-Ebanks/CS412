@@ -35,6 +35,15 @@
                         </div>
                     </div>
                     <p class="join-date">Joined {{ profile.join_date}}</p>
+                    {% if request.user.is_authenticated and not is_own_profile %}
+                    <div class="profile-follow-actions">
+                        {% if already_follows %}
+                        <a href="{% url 'delete_follow' profile.pk %}" class="btn btn-secondary">Unfollow</a>
+                        {% else %}
+                        <a href="{% url 'follow' profile.pk %}" class="btn btn-primary">Follow</a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             

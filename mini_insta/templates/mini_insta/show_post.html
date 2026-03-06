@@ -35,6 +35,15 @@
             <a href="{% url 'delete_post' post.pk %}"><button type="button">Delete Post</button></a>
             <a href="{% url 'update_post' post.pk %}"><button type="button">Update Post</button></a>
             {% endif %}
+            {% if request.user.is_authenticated and not is_own_post %}
+            <span class="post-like-actions">
+                {% if user_likes_post %}
+                <a href="{% url 'delete_like' post.pk %}" class="btn btn-secondary">Unlike</a>
+                {% else %}
+                <a href="{% url 'like' post.pk %}" class="btn btn-primary">Like</a>
+                {% endif %}
+            </span>
+            {% endif %}
             
             <div class="post-photos-grid">
                 {% for photo in post.get_all_photos %}
