@@ -10,10 +10,11 @@
         <div class="profile-content">
             <h1>Create Profile (Register)</h1>
 
+            <!-- Single HTML form: UserCreationForm (Account) and CreateProfileForm (Profile) submitted together -->
             <form method="post" class="profile-edit-form">
                 {% csrf_token %}
 
-                <h2>Account</h2>
+                <h2>Account (UserCreationForm)</h2>
                 <div class="form-group">
                     <label for="{{ user_form.username.id_for_label }}">Username</label>
                     {{ user_form.username }}
@@ -36,7 +37,7 @@
                     {% endif %}
                 </div>
 
-                <h2>Profile</h2>
+                <h2>Profile (CreateProfileForm)</h2>
                 <div class="form-group">
                     <label for="{{ form.username.id_for_label }}">Profile username</label>
                     {{ form.username }}

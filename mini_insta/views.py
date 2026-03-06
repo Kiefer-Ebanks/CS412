@@ -11,6 +11,7 @@ from django.urls import reverse # Importing the reverse function to redirect to 
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin  # Will use to ensure a user is logged in in order to view the page
 from django.contrib.auth.views import LogoutView # Will use to log out the user and redirect to the logged out page
+from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 
 
@@ -77,16 +78,23 @@ class CreateProfileView(CreateView):
         )
         return context
 
+    def form_valid(self, form):
+        ''' Create User from UserCreationForm, log them in, attach User to Profile, then save Profile. '''
+        user_form = UserCreationForm(self.request.POST)
+        user = user_form.save()
+        login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
+        form.instance.user = user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('show_my_profile')
+
     def post(self, request, *args, **kwargs):
-        ''' Validate both forms; create User then Profile and assign profile.user. '''
+        ''' Validate both forms; if valid, call form_valid to create User, log in, and save Profile. '''
         user_form = UserCreationForm(request.POST)
         form = CreateProfileForm(request.POST)
         if user_form.is_valid() and form.is_valid():
-            user = user_form.save()
-            profile = form.save(commit=False)
-            profile.user = user
-            profile.save()
-            return redirect('login')
+            return self.form_valid(form)
         context = self.get_context_data(user_form=user_form)
         context['form'] = form
         return self.render_to_response(context)

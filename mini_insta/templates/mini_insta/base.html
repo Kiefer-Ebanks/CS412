@@ -59,6 +59,9 @@
                         </form>
                     </li>
                     {% else %}
+                    <li>
+                        <a href="{% url 'create_profile' %}">Create profile</a>
+                    </li>
                     <li class="header-auth-item">
                         <form action="{% url 'login' %}" method="post" class="header-auth-form">
                             {% csrf_token %}

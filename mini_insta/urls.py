@@ -24,6 +24,7 @@ urlpatterns = [
     path(r'profile/search', SearchView.as_view(), name='search'),
 
     # Authentication URLs
+    path(r'create_profile/', CreateProfileView.as_view(), name='create_profile'),
     path(r'register/', CreateProfileView.as_view(), name='register'),
     path(r'login/', auth_views.LoginView.as_view(template_name='mini_insta/login.html'), name='login'), # providing the template and login form via the 
     #path(r'logout/', auth_views.LogoutView.as_view(next_page='show_all_profiles'), name='logout'), # redirecting to the show_all_profiles page after the user logs out
