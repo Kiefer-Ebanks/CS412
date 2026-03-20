@@ -6,7 +6,7 @@
 from django.db.models.query import QuerySet
 from django.shortcuts import render
 from django.db.models import Max, Min
-from django.views.generic import ListView
+from django.views.generic import DetailView, ListView
 
 from .models import Voter
 
@@ -107,4 +107,21 @@ class VoterListView(ListView):
         # voters.html pastes that into the Next/Previous href so the URL still carries the filters.
         ctx['filter_querystring'] = params.urlencode()
 
+        return ctx
+
+class VoterDetailView(DetailView):
+    ''' view to display a single voter record '''
+    model = Voter
+    template_name = 'voter_analytics/voter.html'
+    context_object_name = 'voter'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        v = self.object
+        parts = [v.street_number.strip(), v.street_name.strip()]
+        apt = (v.apartment_number or '').strip()
+        if apt:
+            parts.append(apt)
+        parts.append(v.zip_code.strip())
+        ctx['voter_address_for_maps'] = ', '.join(parts)
         return ctx
