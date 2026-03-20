@@ -76,13 +76,13 @@
                 <th>Street Address</th>
                 <th>DOB</th>
                 <th>Voter Score</th>
-                <th>Detail</th>
             </tr>
     
             {% for v in voters %}
             <tr>
                 
-                <td>{{ v.voter_id }}</td>
+                
+                <td><a href="{% url 'voter' v.pk %}">{{ v.voter_id }}</a></td>
                 <td>{{ v.first_name }}</td>
                 <td>{{ v.last_name }}</td>
                 <td>{{v.party_affiliation}}</td>
@@ -93,7 +93,6 @@
                 {% endif %}
                 <td>{{v.date_of_birth}}</td>
                 <td>{{ v.voter_score }}</td>
-                <td><a href="{% url 'voter' v.pk %}">View</a></td>
             </tr>
             {% endfor %}
     

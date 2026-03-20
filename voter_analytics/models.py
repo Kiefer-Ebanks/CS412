@@ -26,6 +26,17 @@ class Voter(models.Model):
     def __str__(self):
         ''' returns a string representation of the Voter model so we just get their name and voter id '''
         return f'{self.first_name} {self.last_name} ({self.voter_id})'
+
+    @classmethod
+    def get_count_of_voters_for_elections(cls):
+        ''' counts all voters in the DB who voted in each election (True on that BooleanField) '''
+        return {
+            'v20state': cls.objects.filter(v20state=True).count(),
+            'v21town': cls.objects.filter(v21town=True).count(),
+            'v21primary': cls.objects.filter(v21primary=True).count(),
+            'v22general': cls.objects.filter(v22general=True).count(),
+            'v23town': cls.objects.filter(v23town=True).count(),
+        }
     
 
 def load_data():

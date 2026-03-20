@@ -5,8 +5,11 @@
 
 from django.db.models.query import QuerySet
 from django.shortcuts import render
-from django.db.models import Max, Min
+from django.db.models import Count, Max, Min
 from django.views.generic import DetailView, ListView
+
+import plotly.graph_objects as go
+import plotly.offline
 
 from .models import Voter
 
@@ -124,4 +127,63 @@ class VoterDetailView(DetailView):
             parts.append(apt)
         parts.append(v.zip_code.strip())
         ctx['voter_address_for_maps'] = ', '.join(parts)
+        return ctx
+
+class GraphsView(ListView):
+    ''' view to display the graphs from plotly '''
+
+    model = Voter
+    template_name = 'voter_analytics/graphs.html'
+
+    def get_count_by_birth_year(self):
+        ''' helper function to get the number of voters by birth year '''
+
+        return (
+            Voter.objects.values('date_of_birth__year')
+            .annotate(count=Count('pk'))
+            .order_by('date_of_birth__year')
+        )
+
+    def get_count_by_party_affiliation(self):
+        ''' helper function to get the number of voters by party affiliation '''
+        return (
+            Voter.objects.values('party_affiliation')
+            .annotate(count=Count('pk'))
+            .order_by('party_affiliation')
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        count_by_birth_year = list(self.get_count_by_birth_year())
+        years = [row['date_of_birth__year'] for row in count_by_birth_year]
+        counts = [row['count'] for row in count_by_birth_year]
+
+        bar = go.Bar( x=years, y=counts, marker=dict(color=counts, colorscale='Viridis', showscale=True),)
+        fig = go.Figure( data=[bar], layout=go.Layout(title='Number of Voters by Birth Year', xaxis_title='Birth year', yaxis_title='Count'))
+        ctx['graph_div_dob_count'] = plotly.offline.plot(
+            fig,
+            auto_open=False,
+            output_type='div',
+        )
+
+        count_by_party_affiliation = list(self.get_count_by_party_affiliation())
+        parties = [row['party_affiliation'] for row in count_by_party_affiliation]
+        counts = [row['count'] for row in count_by_party_affiliation]
+        
+        pie = go.Pie( labels=parties, values=counts)
+        fig2 = go.Figure( data=[pie], layout=go.Layout(title='Number of Voters by Party Affiliation'))
+        ctx['graph_div_party_affiliation_count'] = plotly.offline.plot(
+            fig2,
+            auto_open=False,
+            output_type='div',
+        )
+
+         # create graph of voters by participation in elections
+        elections = list(Voter.get_count_of_voters_for_elections().keys())
+        counts = list(Voter.get_count_of_voters_for_elections().values())
+        bar2 = go.Bar( x=elections, y=counts)
+        title_text = f"Number of Voters by Participation in Elections"
+        graph_div_voter_participation = plotly.offline.plot({"data": [bar2], "layout_title_text": title_text}, auto_open=False, output_type="div")
+        ctx['graph_div_voter_participation'] = graph_div_voter_participation
+        
         return ctx
