@@ -34,7 +34,7 @@ class myLoginRequiredMixin(LoginRequiredMixin):
 
 
 class ProfileOwnerTestMixin(UserPassesTestMixin):
-    ''' Only the user associated with the Profile (from URL pk) may pass. Use for profile-scoped views. '''
+    ''' Only the user associated with the Profile (from URL pk) may pass. Using for profile-scoped views. '''
 
     def test_func(self):
         try:
