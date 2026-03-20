@@ -1,0 +1,34 @@
+<!-- File: base.html -->
+<!-- Author: Kiefer Ebanks (kebanks@bu.edu), 3/20/2026 -->
+<!-- Description: The base template for the voter analytics app -->
+<!-- The base template for the voter analytics app that will be used to inherit by other templates -->
+
+{% load static %} <!-- loading static files for css styling -->
+
+<html>
+    <head>
+        <title>Voter Analytics</title>
+        <!-- <link rel="stylesheet" href="{% static 'voter_analytics_styles.css' %}"> --> <!-- linking to the static css file for styling -->
+    </head>
+    <body>
+        <header>
+            <h1>Voter Analytics</h1>
+            <nav>
+
+                <ul>
+
+                    <li>
+                        <a href="{% url 'home' %}">Home</a>
+                    </li>
+                </ul>
+
+            </nav>
+        </header>
+
+        <!-- block content will be replaced by the content of the child templates -->
+        {% block content %}
+        {% endblock %}
+
+    </body>
+
+</html>
