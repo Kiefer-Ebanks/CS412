@@ -5,15 +5,15 @@
 {% extends 'voter_analytics/base.html' %}
 
 {% block content %}
-<div class="container">
-    <h1>{{ voter.first_name }} {{ voter.last_name }}</h1>
-    <p><a href="{% url 'voters' %}">Back to list of all voters</a></p>
-    <p>
+<div class="container voter-detail">
+    <h2 class="section-title">{{ voter.first_name }} {{ voter.last_name }}</h2>
+    <p class="back-link"><a href="{% url 'voters' %}">Back to list of all voters</a></p>
+    <p class="detail-address">
         Their address is: {{ voter_address_for_maps }}
-        <a href="https://www.google.com/maps/search/?api=1&amp;query={{ voter_address_for_maps|urlencode }}" target="_blank" rel="noopener noreferrer">Open address in Google Maps</a>
+        <a href="https://www.google.com/maps/search/?api=1&amp;query={{ voter_address_for_maps|urlencode }}" target="_blank" rel="noopener noreferrer">Open in Google Maps</a>
     </p>
 
-    <table>
+    <table class="detail-table">
         <tr><th>Voter ID</th><td>{{ voter.voter_id }}</td></tr>
         <tr><th>First name</th><td>{{ voter.first_name }}</td></tr>
         <tr><th>Last name</th><td>{{ voter.last_name }}</td></tr>

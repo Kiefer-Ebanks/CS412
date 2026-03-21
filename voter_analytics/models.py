@@ -1,4 +1,9 @@
+# File: models.py
+# Author: Kiefer Ebanks (kebanks@bu.edu), 3/20/2026
+# Description: The models for the voter_analytics app
+
 from django.db import models
+from django.db.models import Count
 
 # Create your models here.
 
@@ -27,15 +32,33 @@ class Voter(models.Model):
         ''' returns a string representation of the Voter model so we just get their name and voter id '''
         return f'{self.first_name} {self.last_name} ({self.voter_id})'
 
-    @classmethod
-    def get_count_of_voters_for_elections(cls):
-        ''' counts all voters in the DB who voted in each election (True on that BooleanField) '''
+    def get_count_by_birth_year(self, queryset=None):
+        ''' list of {date_of_birth__year, count} query results for every birth year in the database '''
+        qs = queryset if queryset is not None else type(self).objects.all()
+        return list(
+            qs.values('date_of_birth__year')
+            .annotate(count=Count('pk'))
+            .order_by('date_of_birth__year')
+        )
+
+    def get_count_by_party_affiliation(self, queryset=None):
+        ''' list of {party_affiliation, count} query results for every party in the database '''
+        qs = queryset if queryset is not None else type(self).objects.all()
+        return list(
+            qs.values('party_affiliation')
+            .annotate(count=Count('pk'))
+            .order_by('party_affiliation')
+        )
+
+    def get_count_of_voters_for_elections(self, queryset=None):
+        ''' counts all voters in the DB who voted in each election '''
+        qs = queryset if queryset is not None else type(self).objects.all()
         return {
-            'v20state': cls.objects.filter(v20state=True).count(),
-            'v21town': cls.objects.filter(v21town=True).count(),
-            'v21primary': cls.objects.filter(v21primary=True).count(),
-            'v22general': cls.objects.filter(v22general=True).count(),
-            'v23town': cls.objects.filter(v23town=True).count(),
+            'v20state': qs.filter(v20state=True).count(),
+            'v21town': qs.filter(v21town=True).count(),
+            'v21primary': qs.filter(v21primary=True).count(),
+            'v22general': qs.filter(v22general=True).count(),
+            'v23town': qs.filter(v23town=True).count(),
         }
     
 

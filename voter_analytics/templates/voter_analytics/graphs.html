@@ -1,18 +1,28 @@
-# File: graphs.html
-# Author: Kiefer Ebanks (kebanks@bu.edu), 3/20/2026
-# Description: The template for the graphs page
-# This template displays the graphs from plotly
-
+{# File: graphs.html #}
+{# Author: Kiefer Ebanks (kebanks@bu.edu), 3/20/2026 #}
+{# Description: The template for the graphs page — displays Plotly graphs #}
 
 {% extends 'voter_analytics/base.html' %}
 
 {% block content %}
-<h1>Graphs</h1>
+<div class="container">
+    <h2 class="section-title">Graphs</h2>
 
-{{ graph_div_dob_count|safe }}
+    <div class="row">
+        {% include 'voter_analytics/search.html' %} <!-- including the search.html template to display the search form -->
+    </div>
 
-{{ graph_div_party_affiliation_count|safe }}
+    <div class="row graph-block">
+        {{ graph_div_dob_count|safe }}
+    </div>
 
-{{ graph_div_voter_participation|safe }}
+    <div class="row graph-block">
+        {{ graph_div_party_affiliation_count|safe }}
+    </div>
+
+    <div class="row graph-block">
+        {{ graph_div_voter_participation|safe }}
+    </div>
+</div>
 
 {% endblock %}
