@@ -16,7 +16,7 @@ links to base.html to display the list of all pictures -->
         <p>Here is a list of all pictures:</p>
         <ul>
             {% for picture in pictures %}
-            <li>{{ picture.image_url }}</li>
+            <img src="{{ picture.image_url }}" alt="{{ picture.image_url }}">
             {% endfor %}
         </ul>
         {% endblock %}
