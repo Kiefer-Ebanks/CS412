@@ -24,10 +24,10 @@
                 <a href="{% url 'pictures' %}">Pictures</a>
             </li>
             <li>
-                <a href="{% url 'joke' nav_joke.pk %}">Joke</a>
+                <a href="{% url 'joke' joke.pk %}">Joke</a>
             </li>
             <li>
-                <a href="{% url 'picture' nav_picture.pk %}">Picture</a>
+                <a href="{% url 'picture' picture.pk %}">Picture</a>
             </li>
         </nav>
         {% block content %}
