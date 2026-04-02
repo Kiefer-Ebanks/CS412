@@ -43,8 +43,9 @@ INSTALLED_APPS = [
     'quotes',
     'restaurant',
     'mini_insta',
-    'voter_analytics', # Just created this app for the voter analytics project
-    'rest_framework',
+    'voter_analytics',
+    'rest_framework', # added this for the API
+    'dadjokes', # added this for the dad jokes API
 ]
 
 MIDDLEWARE = [
@@ -70,6 +71,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'dadjokes.context_processors.dadjokes_nav',
             ],
         },
     },
@@ -139,3 +141,9 @@ CS_DEPLOYMENT_HOSTNAME = 'cs-webapps.bu.edu'
 if socket.gethostname() == CS_DEPLOYMENT_HOSTNAME:
     STATIC_URL = '/kebanks/static/'
     MEDIA_URL = '/kebanks/media/'
+
+
+REST_FRAMEWORK = {
+  'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+  'PAGE_SIZE': 10
+}

@@ -1,0 +1,36 @@
+<!-- File: base.html -->
+<!-- Author: Kiefer Ebanks (kebanks@bu.edu), 4/2/2026 -->
+<!-- Description: The base template for the dad jokes app -->
+<!-- The base template for the dad jokes app that will be used to inherit by other templates -->
+
+{% load static %} <!-- loading static files for css styling -->
+
+<html>
+    <head>
+        <title>Dad Jokes</title>
+    </head>
+    <body>
+        <nav>
+            <li>
+                <a href="{% url 'home'%}">Home</a>
+            </li>
+            <li>
+                <a href="{% url 'random' %}">Random</a>
+            </li>
+            <li>
+                <a href="{% url 'jokes' %}">Jokes</a>
+            </li>
+            <li>
+                <a href="{% url 'pictures' %}">Pictures</a>
+            </li>
+            <li>
+                <a href="{% url 'joke' nav_joke.pk %}">Joke</a>
+            </li>
+            <li>
+                <a href="{% url 'picture' nav_picture.pk %}">Picture</a>
+            </li>
+        </nav>
+        {% block content %}
+        {% endblock %}
+    </body>
+</html>
