@@ -392,3 +392,21 @@ class LoggedOutView(TemplateView):
     template_name = 'mini_insta/logged_out.html'
 
 
+###### REST API Views ######
+
+from rest_framework import generics
+from .serializers import *
+
+class ProfileListAPIView(generics.ListAPIView):
+    ''' API View to return a list of Articles '''
+
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+
+
+class ProfileDetailAPIView(generics.RetrieveDestroyAPIView):
+    ''' API view to return a single Article'''
+
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'restaurant',
     'mini_insta',
     'voter_analytics', # Just created this app for the voter analytics project
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

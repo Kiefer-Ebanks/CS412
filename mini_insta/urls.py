@@ -34,4 +34,9 @@ urlpatterns = [
     #path(r'logout/', auth_views.LogoutView.as_view(next_page='show_all_profiles'), name='logout'), # redirecting to the show_all_profiles page after the user logs out
     path(r'logout/', auth_views.LogoutView.as_view(next_page='logout_confirmation'), name='logout'), # providing the template and logout form via the auth_views.LogoutView
     path(r'logout_confirmation/', LoggedOutView.as_view(), name='logout_confirmation'), # providing the template and logout form via the auth_views.LogoutView
+
+
+    ## REST API Views: ######
+    path(r'api/profiles/', ProfileListAPIView.as_view(), name='api_show_all'),
+    path(r'api/profiles/<int:pk>/', ProfileDetailAPIView.as_view(), name='api_profile'),
 ]
