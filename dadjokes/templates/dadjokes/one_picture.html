@@ -13,8 +13,7 @@ links to base.html to display the single picture -->
     <body>
         {% block content %} <!-- creating the information that will be subsituted in the base.html template-->
         <h1>One Picture</h1>
-        <h2>Random image</h2>
-        <img src="{{ random_picture.image_url }}" alt="{{ random_picture.image_url }}">
+        <img src="{{ picture.image_url }}" alt="{{ picture.image_url }}">
         {% endblock %}
     </body>
 </html>

@@ -13,4 +13,13 @@ urlpatterns = [
     path('joke/<int:pk>/', views.DadJokeDetailView.as_view(), name='joke'), # URL pattern for the view to display a single dad joke
     path('pictures/', views.PicturesListView.as_view(), name='pictures'), # URL pattern for the view to display a list of all pictures
     path('picture/<int:pk>/', views.PictureDetailView.as_view(), name='picture'), # URL pattern for the view to display a single picture
+
+    # API URLs
+    path('api/', views.RandomJokeAPIView.as_view(), name='api'),
+    path('api/random', views.RandomJokeAPIView.as_view(), name='api_random_joke'),
+    path('api/jokes/', views.JokeListAPIView.as_view(), name='api_jokes'),
+    path('api/jokes/<int:pk>/', views.JokeDetailAPIView.as_view(), name='api_joke'),
+    path('api/pictures/', views.PictureListAPIView.as_view(), name='api_pictures'),
+    path('api/pictures/<int:pk>/', views.PictureDetailAPIView.as_view(), name='api_picture'),
+    path('api/random_picture/', views.RandomPictureAPIView.as_view(), name='api_random_picture'),
 ]

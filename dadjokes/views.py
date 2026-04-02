@@ -7,6 +7,11 @@ from django.shortcuts import get_object_or_404
 from .models import Joke, Picture
 import random
 
+# Importing the generics class from the rest_framework
+# Importing the JokeSerializer and PictureSerializer from the serializers.py file
+from rest_framework import generics
+from .serializers import JokeSerializer, PictureSerializer
+
 
 class RandomView(DetailView):
     ''' DetailView for Joke: URL may include pk (DB lookup) or omit it (random joke). '''
@@ -34,15 +39,10 @@ class DadJokesListView(ListView):
     context_object_name = 'jokes'
 
 class DadJokeDetailView(DetailView):
-    ''' A DetailView that displays a single dad joke '''
+    ''' Displays the Joke whose primary key matches the pk in the URL'''
     model = Joke
     template_name = 'dadjokes/one_joke.html'
     context_object_name = 'joke'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['random_joke'] = random.choice(list(Joke.objects.all()))
-        return context
 
 class PicturesListView(ListView):
     ''' A ListView that displays a list of all pictures '''
@@ -58,7 +58,54 @@ class PictureDetailView(DetailView):
     template_name = 'dadjokes/one_picture.html'
     context_object_name = 'picture'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data()
-        context['random_picture'] = random.choice(list(Picture.objects.all()))
-        return context
+
+
+
+# API Views
+
+class JokeListAPIView(generics.ListCreateAPIView):
+    ''' API View to return a list of Jokes and create a new joke '''
+
+    queryset = Joke.objects.all()
+    serializer_class = JokeSerializer
+
+class JokeDetailAPIView(generics.RetrieveDestroyAPIView):
+    ''' API View to return a single Joke '''
+
+    queryset = Joke.objects.all()
+    serializer_class = JokeSerializer
+
+class PictureListAPIView(generics.ListAPIView):
+    ''' API View to return a list of Pictures '''
+
+    queryset = Picture.objects.all()
+    serializer_class = PictureSerializer
+
+class PictureDetailAPIView(generics.RetrieveDestroyAPIView):
+    ''' API View to return a single Picture '''
+
+    queryset = Picture.objects.all()
+    serializer_class = PictureSerializer
+
+class RandomJokeAPIView(generics.RetrieveAPIView):
+    ''' GET requests return one joke at random '''
+
+    queryset = Joke.objects.all()
+    serializer_class = JokeSerializer
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        obj = random.choice(list(queryset))
+        return obj
+
+
+class RandomPictureAPIView(generics.RetrieveAPIView):
+    ''' GET requests return one picture at random '''
+
+    queryset = Picture.objects.all()
+    serializer_class = PictureSerializer
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        obj = random.choice(list(queryset))
+        return obj
