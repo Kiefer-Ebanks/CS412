@@ -12,9 +12,10 @@ links to base.html to display the random dad joke and random picture -->
     </head>
     <body>
         {% block content %} <!-- creating the information that will be subsituted in the base.html template-->
-        <h1>Random</h1>
-        <p>Here is a random dad joke and random picture:</p>
+        <h1>Random Image and Joke</h1>
+        <h2>Here is a random dad joke:</h2>
         <p>{{ joke.text }}</p>
+        <h2>Here is a random picture:</h2>
         <img src="{{ picture.image_url }}" alt="{{ picture.image_url }}">
         {% endblock %}
     </body>

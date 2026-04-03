@@ -18,16 +18,10 @@
                 <a href="{% url 'random' %}">Random</a>
             </li>
             <li>
-                <a href="{% url 'jokes' %}">Jokes</a>
+                <a href="{% url 'jokes' %}">All Jokes</a>
             </li>
             <li>
-                <a href="{% url 'pictures' %}">Pictures</a>
-            </li>
-            <li>
-                <a href="{% url 'joke' joke.pk %}">Joke</a>
-            </li>
-            <li>
-                <a href="{% url 'picture' picture.pk %}">Picture</a>
+                <a href="{% url 'pictures' %}">All Pictures</a>
             </li>
         </nav>
         {% block content %}

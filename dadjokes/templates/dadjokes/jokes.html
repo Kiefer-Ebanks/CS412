@@ -12,11 +12,13 @@ links to base.html to display the list of all dad jokes -->
     </head>
     <body>
         {% block content %} <!-- creating the information that will be subsituted in the base.html template-->
-        <h1>Jokes</h1>
-        <p>Here is a list of all dad jokes:</p>
+        <h1>All Dad Jokes</h1>
+        <p>Here is a list of all our dad jokes:</p>
         <ul>
             {% for joke in jokes %}
-            <li>{{ joke.text }}</li>
+            <li>
+                <a href="{% url 'joke' joke.pk %}">{{ joke.text }}</a>
+            </li>
             {% endfor %}
         </ul>
         {% endblock %}
