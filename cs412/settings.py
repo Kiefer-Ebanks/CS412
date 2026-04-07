@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
+    'corsheaders', # added this for the dadjokes api for browser testing
     'hw',
     'quotes',
     'restaurant',
@@ -47,10 +47,11 @@ INSTALLED_APPS = [
     'voter_analytics',
     'rest_framework', # added this for the API
     'dadjokes', # added this for the dad jokes API
+    'rest_framework.authtoken', # added this for the mini_insta api
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware', # added this for the dadjokes api for browser testing
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -146,11 +147,13 @@ if socket.gethostname() == CS_DEPLOYMENT_HOSTNAME:
 
 REST_FRAMEWORK = {
   'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-  'PAGE_SIZE': 10
+  'PAGE_SIZE': 10,
+  'DEFAULT_AUTHENTICATION_CLASSES': [
+    'rest_framework.authentication.TokenAuthentication',
+  ]
 }
 
-# Browsers enforce CORS on cross-origin fetch; the native app does not. Without this,
-# Expo web shows "Could not load jokes" while iOS/Android still work.
+# Need to allow cors because without it, the dadjokes api will not work in the browser.
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 else:

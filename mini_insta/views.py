@@ -392,10 +392,11 @@ class LoggedOutView(TemplateView):
     template_name = 'mini_insta/logged_out.html'
 
 
-###### REST API Views ######
+# REST API Views
 
 from rest_framework import generics
 from .serializers import *
+
 
 class ProfileListAPIView(generics.ListAPIView):
     ''' API View to return a list of Articles '''
@@ -410,3 +411,34 @@ class ProfileDetailAPIView(generics.RetrieveDestroyAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
 
+
+# Registration API View
+
+class UserRegistrationView(generics.CreateAPIView):
+    ''' API view to register a new user '''
+
+    serializer_class = UserSerializer
+
+# Login API View
+
+# importing the necessary modules for the login API view
+from rest_framework.authtoken.models import Token
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth import authenticate
+
+class UserLoginView(APIView):
+    ''' API view to login a user '''
+
+    def post(self, request):
+        ''' login a user '''
+
+        username = request.data.get('username') # get the username from the request data
+        password = request.data.get('password') # get the password from the request data
+        user = authenticate(username=username, password=password) # authenticate the user
+
+        if user is not None:
+            token, created = Token.objects.get_or_create(user=user) # create or retrieve a token for the user
+            return Response({'token': token.key}, status=status.HTTP_200_OK)
+        return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)

@@ -8,6 +8,9 @@ from .views import * #ProfileListView, ProfileDetailView, PostDetailView
 
 from django.contrib.auth import views as auth_views # importing the views for the authentication system
 
+# Authentication API imports
+from .views import UserRegistrationView, UserLoginView
+
 # Creating the url paths for the mini instagram app
 urlpatterns = [
     path(r'', ProfileListView.as_view(), name='show_all_profiles'),
@@ -36,7 +39,11 @@ urlpatterns = [
     path(r'logout_confirmation/', LoggedOutView.as_view(), name='logout_confirmation'), # providing the template and logout form via the auth_views.LogoutView
 
 
-    ## REST API Views: ######
+    # REST API Views:
     path(r'api/profiles/', ProfileListAPIView.as_view(), name='api_show_all'),
     path(r'api/profiles/<int:pk>/', ProfileDetailAPIView.as_view(), name='api_profile'),
+
+    # Authentication API Views:
+    path(r'api_register/', UserRegistrationView.as_view(), name='api_register'),
+    path(r'api_login/', UserLoginView.as_view(), name='api_login'),
 ]
