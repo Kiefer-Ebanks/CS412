@@ -396,6 +396,8 @@ class LoggedOutView(TemplateView):
 
 from rest_framework import generics
 from rest_framework.parsers import MultiPartParser, FormParser # importing the parsers to allow the API to handle multipart/form-data requests for image uploads
+from rest_framework.exceptions import PermissionDenied, ValidationError # importing the exceptions to handle permission and validation errors
+from rest_framework.permissions import IsAuthenticated # importing to ensure the user is authenticated to create a post on their own profile
 from .serializers import *
 
 
@@ -413,12 +415,11 @@ class ProfileDetailAPIView(generics.RetrieveDestroyAPIView):
     serializer_class = ProfileSerializer
 
 
-class PostListAPIView(generics.ListCreateAPIView):
-    ''' API View to return a list of Posts and to create a new Post '''
+class PostListAPIView(generics.ListAPIView):
+    ''' API View to return a list of Posts '''
 
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    parser_classes = [MultiPartParser, FormParser] # allows the API to handle multipart/form-data requests for image uploads
 
 class PostDetailAPIView(generics.RetrieveDestroyAPIView):
     ''' API view to return a single Post '''
@@ -426,11 +427,13 @@ class PostDetailAPIView(generics.RetrieveDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
-class ProfilePostListAPIView(generics.ListAPIView):
-    ''' API View to return posts with images for a single  profile '''
+class ProfilePostListAPIView(generics.ListCreateAPIView):
+    ''' API View to return posts with images for a single profile and to create posts '''
 
     queryset = Post.objects.all() # this queryset is overwritten by get_queryset but serves as backup to provide objects to serialize by getting all the posts from the database
     serializer_class = PostSerializer
+    parser_classes = [MultiPartParser, FormParser] # allows the API to handle multipart/form-data requests for image uploads
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         ''' Return all posts for the profile specified by pk '''
@@ -439,6 +442,27 @@ class ProfilePostListAPIView(generics.ListAPIView):
         if profile is None:
             raise Http404("Profile not found.")
         return Post.objects.filter(profile=profile) # return all posts for the profile
+
+    def perform_create(self, serializer):
+        ''' Create a post only for the authenticated owner of this profile URL '''
+
+        if self.request.user.is_authenticated == False:
+            raise ValidationError('Authentication required to create a post.')
+
+        profile = Profile.objects.filter(pk=self.kwargs['pk']).first() # get the profile from the database using the pk from the URL
+        
+        if profile is None:
+            raise Http404("Profile not found.")
+
+        if profile.user != self.request.user: # check if the profile user is not the same as the request user
+            raise PermissionDenied('You can only create posts for your own profile.')
+
+        post = serializer.save(profile=profile) # save the post with the profile
+
+        # create one Photo object per uploaded file
+        files = self.request.FILES.getlist('files')
+        for file in files:
+            Photo.objects.create(post=post, image_file=file)
 
 class ProfileFeedListAPIView(generics.ListAPIView):
     ''' API View to return a feed for one profile '''

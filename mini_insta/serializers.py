@@ -62,27 +62,9 @@ class PostSerializer(serializers.ModelSerializer):
 
     # adding this method to be able to create a post object
     def create(self, validated_data):
-        ''' Override the superclass method that handles object creation. '''
-
-        # get the request from the context
-        request = self.context.get('request')
-
-        # check if the request is None or if the user is not authenticated
-        if request == None or request.user.is_authenticated == False:
-            raise serializers.ValidationError('Authentication required to create a post.')
-
-        profile = Profile.objects.filter(user=request.user).order_by('pk').first()
-        if profile == None:
-            raise serializers.ValidationError({'profile': 'No profile exists for this user.'})
-
-        post = Post.objects.create(profile=profile, **validated_data)
-
-        # create one related Photo object per uploaded file
-        files = request.FILES.getlist('files')
-        for file in files:
-            Photo.objects.create(post=post, image_file=file)
-
-        return post
+        ''' Create a Post from serializer data; profile assignment happens in the API view. '''
+        validated_data.pop('files', None)
+        return Post.objects.create(**validated_data)
 
 # class FeedSerializer(serializers.ModelSerializer):
 #     ''' serializer class to convert a feed from django model instance to JSON for API '''
