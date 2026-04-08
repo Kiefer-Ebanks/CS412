@@ -42,9 +42,10 @@ urlpatterns = [
     # REST API Views:
     path(r'api/profiles/', ProfileListAPIView.as_view(), name='api_show_all_profiles'),
     path(r'api/profiles/<int:pk>/', ProfileDetailAPIView.as_view(), name='api_show_profile'),
+    path(r'api/profiles/<int:pk>/posts/', ProfilePostListAPIView.as_view(), name='api_profile_posts'),
+    path(r'api/profiles/<int:pk>/feed/', ProfileFeedListAPIView.as_view(), name='api_profile_feed'),
     path(r'api/posts/', PostListAPIView.as_view(), name='api_show_all_posts'),
     path(r'api/posts/<int:pk>/', PostDetailAPIView.as_view(), name='api_show_post'),
-    path(r'/api/profiles/<int:pk>/feed', FeedListAPIView.as_view(), name='api_show_feed'),
 
     # Authentication API Views:
     path(r'api/register/', UserRegistrationView.as_view(), name='api_register'),

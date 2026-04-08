@@ -53,11 +53,12 @@ class PostSerializer(serializers.ModelSerializer):
 
     # using the Post to Photo reverse FK relation to get each Post's related Photo rows as photo_set
     # then use the PhotoSerializer to serialize each Photo as images
-    images = PhotoSerializer(many=True, source='photo_set') # many=True to be able to serialize multiple photos
+    images = PhotoSerializer(many=True, read_only=True, source='photo_set') # many=True to be able to serialize multiple photos and read-only=True to prevent users from changing the images
+    files = serializers.ImageField(write_only=True, required=False) # files is used to upload multiple images to the post
 
     class Meta:
         model = Post
-        fields = ['id', 'profile', 'images', 'caption', 'timestamp'] # including the pk, profile, images, caption, and timestamp fields
+        fields = ['id', 'profile', 'images', 'files', 'caption', 'timestamp'] # including the pk, profile, images, files, caption, and timestamp fields
 
     # adding this method to be able to create a post object
     def create(self, validated_data):
@@ -65,8 +66,23 @@ class PostSerializer(serializers.ModelSerializer):
 
         # get the request from the context
         request = self.context.get('request')
+
+        # check if the request is None or if the user is not authenticated
+        if request == None or request.user.is_authenticated == False:
+            raise serializers.ValidationError('Authentication required to create a post.')
+
         profile = Profile.objects.filter(user=request.user).order_by('pk').first()
-        return Post.objects.create(profile=profile, **validated_data)
+        if profile == None:
+            raise serializers.ValidationError({'profile': 'No profile exists for this user.'})
+
+        post = Post.objects.create(profile=profile, **validated_data)
+
+        # create one related Photo object per uploaded file
+        files = request.FILES.getlist('files')
+        for file in files:
+            Photo.objects.create(post=post, image_file=file)
+
+        return post
 
 # class FeedSerializer(serializers.ModelSerializer):
 #     ''' serializer class to convert a feed from django model instance to JSON for API '''

@@ -395,6 +395,7 @@ class LoggedOutView(TemplateView):
 ########################### REST API Views ###########################
 
 from rest_framework import generics
+from rest_framework.parsers import MultiPartParser, FormParser # importing the parsers to allow the API to handle multipart/form-data requests for image uploads
 from .serializers import *
 
 
@@ -412,11 +413,12 @@ class ProfileDetailAPIView(generics.RetrieveDestroyAPIView):
     serializer_class = ProfileSerializer
 
 
-class PostListAPIView(generics.ListAPIView):
+class PostListAPIView(generics.ListCreateAPIView):
     ''' API View to return a list of Posts and to create a new Post '''
 
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    parser_classes = [MultiPartParser, FormParser] # allows the API to handle multipart/form-data requests for image uploads
 
 class PostDetailAPIView(generics.RetrieveDestroyAPIView):
     ''' API view to return a single Post '''
@@ -424,27 +426,32 @@ class PostDetailAPIView(generics.RetrieveDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
-class PostPhotoListAPIView(generics.ListAPIView):
-    ''' API View to return the photos for a single Post '''
-
-    queryset = Photo.objects.all() # this queryset is overwritten by get_queryset but serves as backup to provide objects to serialize by getting all the photos from the database
-    serializer_class = PhotoSerializer
-
-    def get_queryset(self):
-        ''' Override the queryset to return photos for a single Post '''
-
-        post = Post.objects.get(pk=self.kwargs['pk']) # get the post from the database using the pk from the URL
-        return Photo.objects.filter(post=post)
-
-class FeedListAPIView(generics.ListAPIView):
-    ''' API View to return a list of Posts for the logged-in user's feed '''
+class ProfilePostListAPIView(generics.ListAPIView):
+    ''' API View to return posts with images for a single  profile '''
 
     queryset = Post.objects.all() # this queryset is overwritten by get_queryset but serves as backup to provide objects to serialize by getting all the posts from the database
-    #serializer_class = FeedSerializer
+    serializer_class = PostSerializer
 
     def get_queryset(self):
-        ''' Override the queryset to return posts from profiles that this profile follows '''
-        profile = get_profile_for_user(self.request.user)
+        ''' Return all posts for the profile specified by pk '''
+
+        profile = Profile.objects.filter(pk=self.kwargs['pk']).first() # get the profile from the database using the pk from the URL
+        if profile is None:
+            raise Http404("Profile not found.")
+        return Post.objects.filter(profile=profile) # return all posts for the profile
+
+class ProfileFeedListAPIView(generics.ListAPIView):
+    ''' API View to return a feed for one profile '''
+
+    queryset = Post.objects.all() # this queryset is overwritten by get_queryset but serves as backup to provide objects to serialize by getting all the posts from the database
+    serializer_class = PostSerializer
+
+    def get_queryset(self):
+        ''' Return feed posts from profiles followed by the profile specified by pk '''
+
+        profile = Profile.objects.filter(pk=self.kwargs['pk']).first() # get the profile from the database using the pk from the URL
+        if profile is None:
+            raise Http404("Profile not found.")
         return profile.get_post_feed()
 
 ########################### Authentication API Views ###########################
