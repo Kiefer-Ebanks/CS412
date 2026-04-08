@@ -16,7 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         ''' create a new user '''
-        
+
         # validated_data is the data that is passed in from the client
         user = User.objects.create_user(
             username=validated_data['username'],
@@ -26,10 +26,53 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class ProfileSerializer(serializers.ModelSerializer):
-    ''' serializer class to convert an article from django model instance to JSON for API '''
+    ''' serializer class to convert a profile from django model instance to JSON for API '''
     
     class Meta:
         model = Profile
         fields = ['id', 'username', 'display_name', 'profile_image_url', 'bio_text', 'join_date']
 
-        
+# PhotoSerializer is used to serialize the photos for a single Post
+class PhotoSerializer(serializers.ModelSerializer):
+    ''' serializer class to convert a photo from django model instance to JSON for API '''
+
+    # image is not a field in the Photo model, so creating serializer method field to serialize post images
+    image = serializers.SerializerMethodField() # so when the PostSerializer is serialized, the images field will be serialized as a list of PhotoSerializer objects
+    # and the django Rest Framework will call the get_image method automatically to get the image url for a photo
+
+    class Meta:
+        model = Photo
+        fields = ['id', 'post', 'image'] # including the pk, post, and image fields
+
+    def get_image(self, obj): # because the image is not a field in the Photo model, we need to use a serializer method field to serialize it
+        return obj.get_image_url() # calling my object method to get the image_url for a photo (whether it is a URL or a file)
+
+
+class PostSerializer(serializers.ModelSerializer):
+    ''' serializer class to convert a post from django model instance to JSON for API '''
+
+    # using the Post to Photo reverse FK relation to get each Post's related Photo rows as photo_set
+    # then use the PhotoSerializer to serialize each Photo as images
+    images = PhotoSerializer(many=True, source='photo_set') # many=True to be able to serialize multiple photos
+
+    class Meta:
+        model = Post
+        fields = ['id', 'profile', 'images', 'caption', 'timestamp'] # including the pk, profile, images, caption, and timestamp fields
+
+    # adding this method to be able to create a post object
+    def create(self, validated_data):
+        ''' Override the superclass method that handles object creation. '''
+
+        # get the request from the context
+        request = self.context.get('request')
+        profile = Profile.objects.filter(user=request.user).order_by('pk').first()
+        return Post.objects.create(profile=profile, **validated_data)
+
+# class FeedSerializer(serializers.ModelSerializer):
+#     ''' serializer class to convert a feed from django model instance to JSON for API '''
+    
+#     class Meta:
+#         model = Post
+#         fields = ['id', 'profile', 'caption', 'timestamp'] # including the pk, profile, caption, and timestamp fields
+
+                

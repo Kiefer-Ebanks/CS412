@@ -392,7 +392,7 @@ class LoggedOutView(TemplateView):
     template_name = 'mini_insta/logged_out.html'
 
 
-# REST API Views
+########################### REST API Views ###########################
 
 from rest_framework import generics
 from .serializers import *
@@ -410,6 +410,44 @@ class ProfileDetailAPIView(generics.RetrieveDestroyAPIView):
 
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
+
+
+class PostListAPIView(generics.ListAPIView):
+    ''' API View to return a list of Posts and to create a new Post '''
+
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+class PostDetailAPIView(generics.RetrieveDestroyAPIView):
+    ''' API view to return a single Post '''
+
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+class PostPhotoListAPIView(generics.ListAPIView):
+    ''' API View to return the photos for a single Post '''
+
+    queryset = Photo.objects.all() # this queryset is overwritten by get_queryset but serves as backup to provide objects to serialize by getting all the photos from the database
+    serializer_class = PhotoSerializer
+
+    def get_queryset(self):
+        ''' Override the queryset to return photos for a single Post '''
+
+        post = Post.objects.get(pk=self.kwargs['pk']) # get the post from the database using the pk from the URL
+        return Photo.objects.filter(post=post)
+
+class FeedListAPIView(generics.ListAPIView):
+    ''' API View to return a list of Posts for the logged-in user's feed '''
+
+    queryset = Post.objects.all() # this queryset is overwritten by get_queryset but serves as backup to provide objects to serialize by getting all the posts from the database
+    #serializer_class = FeedSerializer
+
+    def get_queryset(self):
+        ''' Override the queryset to return posts from profiles that this profile follows '''
+        profile = get_profile_for_user(self.request.user)
+        return profile.get_post_feed()
+
+########################### Authentication API Views ###########################
 
 
 # Registration API View

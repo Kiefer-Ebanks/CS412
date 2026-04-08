@@ -40,10 +40,13 @@ urlpatterns = [
 
 
     # REST API Views:
-    path(r'api/profiles/', ProfileListAPIView.as_view(), name='api_show_all'),
-    path(r'api/profiles/<int:pk>/', ProfileDetailAPIView.as_view(), name='api_profile'),
+    path(r'api/profiles/', ProfileListAPIView.as_view(), name='api_show_all_profiles'),
+    path(r'api/profiles/<int:pk>/', ProfileDetailAPIView.as_view(), name='api_show_profile'),
+    path(r'api/posts/', PostListAPIView.as_view(), name='api_show_all_posts'),
+    path(r'api/posts/<int:pk>/', PostDetailAPIView.as_view(), name='api_show_post'),
+    path(r'/api/profiles/<int:pk>/feed', FeedListAPIView.as_view(), name='api_show_feed'),
 
     # Authentication API Views:
-    path(r'api_register/', UserRegistrationView.as_view(), name='api_register'),
-    path(r'api_login/', UserLoginView.as_view(), name='api_login'),
+    path(r'api/register/', UserRegistrationView.as_view(), name='api_register'),
+    path(r'api/login/', UserLoginView.as_view(), name='api_login'),
 ]
