@@ -397,22 +397,24 @@ class LoggedOutView(TemplateView):
 from rest_framework import generics
 from rest_framework.parsers import MultiPartParser, FormParser # importing the parsers to allow the API to handle multipart/form-data requests for image uploads
 from rest_framework.exceptions import PermissionDenied, ValidationError # importing the exceptions to handle permission and validation errors
-from rest_framework.permissions import IsAuthenticated # importing to ensure the user is authenticated to create a post on their own profile
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly # importing to ensure the user is authenticated to create a post on their own profile and allow read-only access to the API to anyone
 from .serializers import *
-
+from rest_framework.authentication import TokenAuthentication # importing the TokenAuthentication class to authenticate the user using a token
 
 class ProfileListAPIView(generics.ListAPIView):
-    ''' API View to return a list of Articles '''
+    ''' API View to return a list of Profiles '''
 
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
 
 
 class ProfileDetailAPIView(generics.RetrieveDestroyAPIView):
-    ''' API view to return a single Article'''
+    ''' API view to return a single Profile'''
 
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    # authentication_classes = [TokenAuthentication]
 
 
 class PostListAPIView(generics.ListAPIView):
@@ -420,12 +422,16 @@ class PostListAPIView(generics.ListAPIView):
 
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    # authentication_classes = [TokenAuthentication]
 
 class PostDetailAPIView(generics.RetrieveDestroyAPIView):
     ''' API view to return a single Post '''
 
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    # authentication_classes = [TokenAuthentication]
 
 class ProfilePostListAPIView(generics.ListCreateAPIView):
     ''' API View to return posts with images for a single profile and to create posts '''
@@ -433,7 +439,8 @@ class ProfilePostListAPIView(generics.ListCreateAPIView):
     queryset = Post.objects.all() # this queryset is overwritten by get_queryset but serves as backup to provide objects to serialize by getting all the posts from the database
     serializer_class = PostSerializer
     parser_classes = [MultiPartParser, FormParser] # allows the API to handle multipart/form-data requests for image uploads
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    # authentication_classes = [TokenAuthentication]
 
     def get_queryset(self):
         ''' Return all posts for the profile specified by pk '''
@@ -469,6 +476,8 @@ class ProfileFeedListAPIView(generics.ListAPIView):
 
     queryset = Post.objects.all() # this queryset is overwritten by get_queryset but serves as backup to provide objects to serialize by getting all the posts from the database
     serializer_class = PostSerializer
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    # authentication_classes = [TokenAuthentication]
 
     def get_queryset(self):
         ''' Return feed posts from profiles followed by the profile specified by pk '''
