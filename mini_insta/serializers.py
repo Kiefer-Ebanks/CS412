@@ -59,12 +59,36 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ['id', 'profile', 'images', 'files', 'caption', 'timestamp'] # including the pk, profile, images, files, caption, and timestamp fields
+        extra_kwargs = {
+            # auto_now sets this so clients must not send it on create
+            'timestamp': {'read_only': True},
+
+            # ProfilePostListAPIView passes profile in save() so clients can omit profile
+            'profile': {'required': False},
+        }
 
     # adding this method to be able to create a post object
     def create(self, validated_data):
         ''' Create a Post from serializer data; profile assignment happens in the API view. '''
         validated_data.pop('files', None)
         return Post.objects.create(**validated_data)
+
+
+# ProfilePostListAPIView POST uses PostCreateSerializer instead so incoming
+# multipart is not validated against `files` (ImageField) and `profile` is supplied only via save(profile=…).
+
+
+class PostCreateSerializer(serializers.Serializer):
+    ''' POST multipart: caption only in validated data. Profile is merged in via save(profile=…) in the view — not a plain ModelSerializer so DRF never asks for a required model `profile` field on the request body. '''
+
+    caption = serializers.CharField(trim_whitespace=True)
+
+    def create(self, validated_data):
+        profile = validated_data['profile']
+        return Post.objects.create(profile=profile, caption=validated_data['caption'])
+
+    def to_representation(self, instance):
+        return PostSerializer(instance, context=self.context).data
 
 # class FeedSerializer(serializers.ModelSerializer):
 #     ''' serializer class to convert a feed from django model instance to JSON for API '''

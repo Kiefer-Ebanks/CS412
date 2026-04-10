@@ -7,6 +7,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
+from .models import Profile
 
 class UserTests(APITestCase):
 
@@ -22,12 +23,18 @@ class UserTests(APITestCase):
     def test_login_user(self):
         ''' test the login user API endpoint '''
 
-        # First, create a user
-        User.objects.create_user(username='testuser', password='testpass123')
-        
-        # Then, login the user
+        user = User.objects.create_user(username='testuser', password='testpass123')
+        Profile.objects.create(
+            user=user,
+            username='testuser',
+            display_name='Test User',
+            bio_text='',
+        )
+
         url = reverse('api_login')
         data = {'username': 'testuser', 'password': 'testpass123'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('token', response.data)
+        self.assertIn('profile_id', response.data)
+        self.assertIn('profile', response.data)

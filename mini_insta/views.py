@@ -394,18 +394,20 @@ class LoggedOutView(TemplateView):
 
 ########################### REST API Views ###########################
 
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.parsers import MultiPartParser, FormParser # importing the parsers to allow the API to handle multipart/form-data requests for image uploads
-from rest_framework.exceptions import PermissionDenied, ValidationError # importing the exceptions to handle permission and validation errors
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly # importing to ensure the user is authenticated to create a post on their own profile and allow read-only access to the API to anyone
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.authentication import TokenAuthentication
 from .serializers import *
-from rest_framework.authentication import TokenAuthentication # importing the TokenAuthentication class to authenticate the user using a token
 
 class ProfileListAPIView(generics.ListAPIView):
     ''' API View to return a list of Profiles '''
 
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
+    permission_classes = [AllowAny]
+    authentication_classes = [TokenAuthentication]
 
 
 class ProfileDetailAPIView(generics.RetrieveDestroyAPIView):
@@ -413,8 +415,8 @@ class ProfileDetailAPIView(generics.RetrieveDestroyAPIView):
 
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
-    # authentication_classes = [TokenAuthentication]
+    permission_classes = [AllowAny]
+    authentication_classes = [TokenAuthentication]
 
 
 class PostListAPIView(generics.ListAPIView):
@@ -422,16 +424,16 @@ class PostListAPIView(generics.ListAPIView):
 
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
-    # authentication_classes = [TokenAuthentication]
+    permission_classes = [AllowAny]
+    authentication_classes = [TokenAuthentication]
 
 class PostDetailAPIView(generics.RetrieveDestroyAPIView):
     ''' API view to return a single Post '''
 
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
-    # authentication_classes = [TokenAuthentication]
+    permission_classes = [AllowAny]
+    authentication_classes = [TokenAuthentication]
 
 class ProfilePostListAPIView(generics.ListCreateAPIView):
     ''' API View to return posts with images for a single profile and to create posts '''
@@ -439,8 +441,41 @@ class ProfilePostListAPIView(generics.ListCreateAPIView):
     queryset = Post.objects.all() # this queryset is overwritten by get_queryset but serves as backup to provide objects to serialize by getting all the posts from the database
     serializer_class = PostSerializer
     parser_classes = [MultiPartParser, FormParser] # allows the API to handle multipart/form-data requests for image uploads
-    # permission_classes = [IsAuthenticatedOrReadOnly]
-    # authentication_classes = [TokenAuthentication]
+    # GET list: anyone; POST create: must be authenticated (IsAuthenticatedOrReadOnly)
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    authentication_classes = [TokenAuthentication]
+
+    def get_serializer_class(self):
+        ''' Use a narrow serializer for POST so uploads are not run through PostSerializer.files (ImageField), which often returns 400 for Expo/React Native. '''
+        if self.request.method == 'POST':
+            return PostCreateSerializer
+        return PostSerializer
+
+    def create(self, request, *args, **kwargs):
+        ''' Explicit POST path: validate caption and ensure only the logged-in user's profile may match URL pk. '''
+        profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
+        user_profile = Profile.objects.filter(user=request.user).order_by('pk').first()
+        if user_profile is None:
+            return Response(
+                {'detail': 'No Profile exists for this account.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if user_profile.pk != profile.pk:
+            return Response(
+                {'detail': 'You can only create posts for your own profile.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        serializer = PostCreateSerializer(data=request.data, context=self.get_serializer_context())
+        serializer.is_valid(raise_exception=True)
+
+        post = Post.objects.create(profile=profile, caption=serializer.validated_data['caption'])
+
+        for file in request.FILES.getlist('files'):
+            Photo.objects.create(post=post, image_file=file)
+
+        out = PostSerializer(post, context=self.get_serializer_context())
+        return Response(out.data, status=status.HTTP_201_CREATED)
 
     def get_queryset(self):
         ''' Return all posts for the profile specified by pk '''
@@ -450,34 +485,13 @@ class ProfilePostListAPIView(generics.ListCreateAPIView):
             raise Http404("Profile not found.")
         return Post.objects.filter(profile=profile) # return all posts for the profile
 
-    def perform_create(self, serializer):
-        ''' Create a post only for the authenticated owner of this profile URL '''
-
-        if self.request.user.is_authenticated == False:
-            raise ValidationError('Authentication required to create a post.')
-
-        profile = Profile.objects.filter(pk=self.kwargs['pk']).first() # get the profile from the database using the pk from the URL
-        
-        if profile is None:
-            raise Http404("Profile not found.")
-
-        if profile.user != self.request.user: # check if the profile user is not the same as the request user
-            raise PermissionDenied('You can only create posts for your own profile.')
-
-        post = serializer.save(profile=profile) # save the post with the profile
-
-        # create one Photo object per uploaded file
-        files = self.request.FILES.getlist('files')
-        for file in files:
-            Photo.objects.create(post=post, image_file=file)
-
 class ProfileFeedListAPIView(generics.ListAPIView):
     ''' API View to return a feed for one profile '''
 
     queryset = Post.objects.all() # this queryset is overwritten by get_queryset but serves as backup to provide objects to serialize by getting all the posts from the database
     serializer_class = PostSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
-    # authentication_classes = [TokenAuthentication]
+    permission_classes = [AllowAny]
+    authentication_classes = [TokenAuthentication]
 
     def get_queryset(self):
         ''' Return feed posts from profiles followed by the profile specified by pk '''
@@ -496,6 +510,8 @@ class UserRegistrationView(generics.CreateAPIView):
     ''' API view to register a new user '''
 
     serializer_class = UserSerializer
+    permission_classes = [AllowAny]
+    authentication_classes = []
 
 # Login API View
 
@@ -509,14 +525,33 @@ from django.contrib.auth import authenticate
 class UserLoginView(APIView):
     ''' API view to login a user '''
 
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
     def post(self, request):
-        ''' login a user '''
+        ''' login a user — returns DRF token and the user's Profile for the React client '''
 
         username = request.data.get('username') # get the username from the request data
         password = request.data.get('password') # get the password from the request data
         user = authenticate(username=username, password=password) # authenticate the user
 
-        if user is not None:
-            token, created = Token.objects.get_or_create(user=user) # create or retrieve a token for the user
-            return Response({'token': token.key}, status=status.HTTP_200_OK)
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+        if user is None:
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+
+        token, created = Token.objects.get_or_create(user=user)
+        profile = Profile.objects.filter(user=user).order_by('pk').first()
+        if profile is None:
+            return Response(
+                {'error': 'This user has no Profile. Create one on the web app first.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        profile_data = ProfileSerializer(profile).data
+        return Response(
+            {
+                'token': token.key,
+                'profile_id': profile.pk,
+                'profile': profile_data,
+            },
+            status=status.HTTP_200_OK,
+        )
