@@ -55,10 +55,21 @@ class PostSerializer(serializers.ModelSerializer):
     # then use the PhotoSerializer to serialize each Photo as images
     images = PhotoSerializer(many=True, read_only=True, source='photo_set') # many=True to be able to serialize multiple photos and read-only=True to prevent users from changing the images
     files = serializers.ImageField(write_only=True, required=False) # files is used to upload multiple images to the post
+    author_display_name = serializers.CharField(source='profile.display_name', read_only=True)
+    author_username = serializers.CharField(source='profile.username', read_only=True)
 
     class Meta:
         model = Post
-        fields = ['id', 'profile', 'images', 'files', 'caption', 'timestamp'] # including the pk, profile, images, files, caption, and timestamp fields
+        fields = [
+            'id',
+            'profile',
+            'author_display_name',
+            'author_username',
+            'images',
+            'files',
+            'caption',
+            'timestamp',
+        ]
         extra_kwargs = {
             # auto_now sets this so clients must not send it on create
             'timestamp': {'read_only': True},
