@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework', # added this for the API
     'dadjokes', # added this for the dad jokes API
     'rest_framework.authtoken', # added this for the mini_insta api
+    'storyplanning', # added this for the story planning final project app
 ]
 
 MIDDLEWARE = [

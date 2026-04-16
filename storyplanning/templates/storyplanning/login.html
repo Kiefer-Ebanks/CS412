@@ -1,0 +1,17 @@
+<!-- File: login.html -->
+<!-- Author: Kiefer Ebanks (kebanks@bu.edu), 4/16/2026 -->
+<!-- Description: The login page for the story planning app -->
+
+<html>
+    <head>
+        <title>Login</title>
+    </head>
+    <body>
+        <h1>Login</h1>
+        <form method="post" action="{% url 'login' %}" >
+            {% csrf_token %}
+            {{form}}
+            <input type="submit" value="Login">
+        </form>
+    </body>
+</html>

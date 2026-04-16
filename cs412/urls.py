@@ -27,6 +27,7 @@ urlpatterns = [
     path('mini_insta/', include('mini_insta.urls')),
     path('voter_analytics/', include('voter_analytics.urls')),
     path('dadjokes/', include('dadjokes.urls')),
+    path('storyplanning/', include('storyplanning.urls')), # added this for the story planning final project app
 ] 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) # configuring static files serving
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # configuring media files serving
