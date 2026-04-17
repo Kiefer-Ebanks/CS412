@@ -12,7 +12,7 @@
             {% csrf_token %}
             {{form}}
             <input type="submit" value="Login">
-            <input type="hidden" name="next" value="{% url 'show_all' %}">
+            <input type="hidden" name="next" value="{% url 'show_all_ideas' %}">
         </form>
     </body>
 </html>

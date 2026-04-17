@@ -1,0 +1,16 @@
+<!-- File: all_ideas.html -->
+<!-- Author: Kiefer Ebanks (kebanks@bu.edu), 4/16/2026 -->
+<!-- Description: The page to display all ideas -->
+
+{% extends 'storyplanning/base.html' %}
+
+{% block content %}
+        <h1>All Ideas</h1>
+        <h3>Here are all of your ideas:</h3>
+        <ul>
+            {% for idea in ideas %}
+                <li>{{ idea.title }}</li>
+                <p>{{ idea.storyboard }}</p>
+            {% endfor %}
+        </ul>
+{% endblock %}

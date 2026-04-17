@@ -11,7 +11,7 @@ class Idea(models.Model):
     ''' models the data attributes of an idea '''
 
     title = models.TextField()
-    storyboard = models.TextField()
+    storyboard = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now=True)
     #user = models.ForeignKey(User, on_delete=models.CASCADE) # adding to the Idea model to link it to the User model
 
@@ -24,8 +24,8 @@ class Scene(models.Model):
     ''' models the data attributes of a scene '''
 
     title = models.TextField()
-    outline = models.TextField()
-    script = models.TextField()
+    outline = models.TextField(blank=True)
+    script = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now=True)
     idea = models.ForeignKey(Idea, on_delete=models.CASCADE) # linking the Scene model to the Idea model with a foreign key
 
@@ -39,9 +39,10 @@ class Character(models.Model):
 
     # Defining the data attributes of the Character model
     name = models.TextField()
-    description = models.TextField()
+    description = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now=True)
     idea = models.ForeignKey(Idea, on_delete=models.CASCADE) # linking the Character model to the Idea model with a foreign key
+    scene = models.ForeignKey(Scene, on_delete=models.CASCADE, null=True, blank=True) # linking the Character model to the Scene model with a foreign key
 
 
     def __str__(self):
@@ -53,10 +54,12 @@ class Image(models.Model):
     ''' models the data attributes of an image '''
 
     # Defining the data attributes of the Image model
-    image_url = models.URLField()
-    image_file = models.ImageField( blank=True) # new field for the image file
+    image_url = models.URLField(blank=True) # field for the image url
+    image_file = models.ImageField( blank=True) # field for the image file
     timestamp = models.DateTimeField(auto_now=True)
     scene = models.ForeignKey(Scene, on_delete=models.CASCADE) # linking the Image model to the Scene model with a foreign key
+    character = models.ForeignKey(Character, on_delete=models.CASCADE, null=True, blank=True) # linking the Image model to the Character model with a foreign key
+    idea = models.ForeignKey(Idea, on_delete=models.CASCADE, null=True, blank=True) # linking the Image model to the Idea model with a foreign key
 
     def get_image_url(self):
         ''' returns the image url for an image '''

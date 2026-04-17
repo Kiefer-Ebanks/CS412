@@ -1,0 +1,48 @@
+<!-- File: base.html -->
+<!-- Author: Kiefer Ebanks (kebanks@bu.edu), 4/16/2026 -->
+<!-- Description: Base template for the story planning app -->
+
+{% load static %}
+
+<html>
+    <head>
+        <title>Story Planning</title>
+        <link rel="stylesheet" href="{% static 'storyplanning_styles.css' %}">
+    </head>
+    <body>
+        <header>
+            <h1>Story Planning App</h1>
+
+            <nav>
+                <ul>
+                    <!-- Logout must be POST because LogoutView does not accept GETs -->
+                    {% if request.user.is_authenticated %}
+                    <li>
+                        <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit">Log out</button>
+                        </form>
+                    </li>
+                    {% else %}
+                    <li><a href="{% url 'login' %}">Log in</a></li>
+                    {% endif %}
+
+                    <li><a href="{% url 'show_all_ideas' %}">All Ideas</a></li>
+                </ul>
+                <!-- show who's logged in -->
+                {% if request.user.is_authenticated %}
+                <p>Logged in user: {{ request.user }}.</p>
+                {% else %}
+                <p>Not logged in.</p>
+                {% endif %}
+            </nav>
+        </header>
+        <main>
+            {% block content %}
+            {% endblock %}
+        </main>
+        <footer>
+            <p>&copy; 2023 Story Planning App. All rights reserved.</p>
+        </footer>
+    </body>
+</html>
