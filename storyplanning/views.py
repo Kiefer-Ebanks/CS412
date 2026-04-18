@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin # importing the LoginR
 from django.urls import reverse # importing the reverse function
 from django.contrib.auth.forms import UserCreationForm # importing the UserCreationForm for creating a new user
 from django.contrib.auth.models import User # importing the User model for creating a new user
+from django.contrib.auth import login # importing the login function for logging in a user right after they register
 
 
 class ShowAllIdeas(LoginRequiredMixin, ListView):
@@ -63,10 +64,13 @@ class UserRegistrationView(CreateView):
     template_name = 'storyplanning/register.html'
     context_object_name = 'user'
 
-    def get_login_url(self):
-        ''' Redirect the user to the login page if the user is not logged in '''
-        return reverse('login') # redirecting to the login page
-
     def get_success_url(self):
         ''' The page to redirect the user to after successful registration '''
-        return reverse('login') # redirecting to the login page
+        return reverse('show_all_ideas') # redirecting to the show_all_ideas page
+
+    def form_valid(self, form):
+        ''' Automatically logging the user in after successful registration '''
+
+        response = super().form_valid(form) # calling the form_valid method to save the new user object and build the redirect to get_success_url()
+        login(self.request, self.object) # logging in the user with the new userobject that was created
+        return response 
