@@ -2,23 +2,25 @@
 <!-- Author: Kiefer Ebanks (kebanks@bu.edu), 4/16/2026 -->
 <!-- Description: The login page for the story planning app -->
 
-<html>
-    <head>
-        <title>Login</title>
-    </head>
-    <body>
-        <h1>Login</h1>
-        <form method="post" action="{% url 'login' %}" >
-            {% csrf_token %}
-            {{form}}
-            <input type="submit" value="Login">
+{% extends 'storyplanning/base.html' %}
 
-            {% if request.GET.next %}
-                <input type="hidden" name="next" value="{{request.GET.next}}">
-            {% else %}
-                <input type="hidden" name="next" value="{% url 'show_all_ideas' %}">
-            {% endif %}
-            
-        </form>
-    </body>
-</html>
+{% block content %}
+
+<h1>Login</h1>
+<form method="post" action="{% url 'login' %}" >
+    {% csrf_token %}
+    {{form}}
+    <input type="submit" value="Login">
+
+    {% if request.GET.next %}
+        <input type="hidden" name="next" value="{{request.GET.next}}">
+    {% else %}
+        <input type="hidden" name="next" value="{% url 'show_all_ideas' %}">
+    {% endif %}
+</form>
+
+<hr>
+
+<a href="{% url 'register' %}">Don't have an account? Register here</a>
+
+{% endblock %}

@@ -9,6 +9,8 @@ from .models import Idea # importing the Idea model for the ideas page
 from .forms import CreateIdeaForm # importing the CreateIdeaForm for the ideas page
 from django.contrib.auth.mixins import LoginRequiredMixin # importing the LoginRequiredMixin for authentication
 from django.urls import reverse # importing the reverse function
+from django.contrib.auth.forms import UserCreationForm # importing the UserCreationForm for creating a new user
+from django.contrib.auth.models import User # importing the User model for creating a new user
 
 
 class ShowAllIdeas(LoginRequiredMixin, ListView):
@@ -52,3 +54,19 @@ class CreateIdeaView(LoginRequiredMixin, CreateView):
         ''' Add the user to the idea and save it '''
         form.instance.user = self.request.user
         return super().form_valid(form)
+
+class UserRegistrationView(CreateView):
+    ''' Creating a view to show and process the form for creating a new user '''
+
+    model = User
+    form_class = UserCreationForm
+    template_name = 'storyplanning/register.html'
+    context_object_name = 'user'
+
+    def get_login_url(self):
+        ''' Redirect the user to the login page if the user is not logged in '''
+        return reverse('login') # redirecting to the login page
+
+    def get_success_url(self):
+        ''' The page to redirect the user to after successful registration '''
+        return reverse('login') # redirecting to the login page

@@ -1,0 +1,20 @@
+<!-- File: register.html -->
+<!-- Author: Kiefer Ebanks (kebanks@bu.edu), 4/17/2026 -->
+<!-- Description: The template for registering a new user -->
+
+{% extends 'storyplanning/base.html' %}
+
+{% block content %}
+
+<h1>Register</h1>
+<form method="post" action="{% url 'register' %}">
+    {% csrf_token %}
+
+    <table>
+        {{ form.as_table }}
+    </table>
+    <button type="submit">Register</button>
+    <a href="{% url 'login' %}">Already have an account? Login</a>
+</form>
+
+{% endblock %}
