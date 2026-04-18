@@ -27,6 +27,10 @@ class ShowAllIdeas(LoginRequiredMixin, ListView):
         ''' Redirect the user to the login page if the user is not logged in '''
         return reverse('login') # redirecting to the login page
 
+    def get_queryset(self):
+        ''' Return the queryset of ideas that belong to the logged-in user '''
+        return Idea.objects.filter(user=self.request.user)
+
 class IdeaView(LoginRequiredMixin, DetailView):
     ''' Creating a view to show an idea '''
 
@@ -37,6 +41,10 @@ class IdeaView(LoginRequiredMixin, DetailView):
     def get_login_url(self):
         ''' Redirect the user to the login page if the user is not logged in '''
         return reverse('login') # redirecting to the login page
+
+    def get_queryset(self):
+        ''' Return the queryset of ideas that belong to the logged-in user '''
+        return Idea.objects.filter(user=self.request.user)
 
 class CreateIdeaView(LoginRequiredMixin, CreateView):
     '''
