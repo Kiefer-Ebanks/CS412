@@ -1,0 +1,20 @@
+<!-- File: create_idea.html -->
+<!-- Author: Kiefer Ebanks (kebanks@bu.edu), 4/17/2026 -->
+<!-- Description: The template for creating an idea -->
+
+{% extends 'storyplanning/base.html' %}
+
+{% block content %}
+<h1>Create an Idea</h1>
+<form method="post">
+    {% csrf_token %}
+
+    <form action="{% url 'create_idea' %}" method="post">
+        {% csrf_token %}
+        <table>
+            {{ form.as_table }}
+        </table>
+        <button type="submit">Create Idea</button>
+    </form>
+</form>
+{% endblock %}

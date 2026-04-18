@@ -4,19 +4,14 @@
 # Creating the views for the story planning app
 
 from django.shortcuts import render
-from django.views.generic import ListView # importing the ListView for the ideas page
+from django.views.generic import ListView, CreateView, DetailView # importing the ListView, CreateView, and DetailView for the ideas page
 from .models import Idea # importing the Idea model for the ideas page
-
-# Create your views here.
-def home(request):
-    '''
-    Creating a default view to handle the 'home' request.
-    '''
-    template_name = 'storyplanning/home.html'
-    return render(request, template_name)
+from .forms import CreateIdeaForm # importing the CreateIdeaForm for the ideas page
+from django.contrib.auth.mixins import LoginRequiredMixin # importing the LoginRequiredMixin for authentication
+from django.urls import reverse # importing the reverse function
 
 
-class ShowAllIdeas(ListView):
+class ShowAllIdeas(LoginRequiredMixin, ListView):
     '''
     Creating a view to show all ideas
     '''
@@ -24,3 +19,36 @@ class ShowAllIdeas(ListView):
     model = Idea
     template_name = 'storyplanning/all_ideas.html'
     context_object_name = 'ideas'
+
+    def get_login_url(self):
+        ''' Redirect the user to the login page if the user is not logged in '''
+        return reverse('login') # redirecting to the login page
+
+class IdeaView(LoginRequiredMixin, DetailView):
+    ''' Creating a view to show an idea '''
+
+    model = Idea
+    template_name = 'storyplanning/idea.html'
+    context_object_name = 'idea'
+
+    def get_login_url(self):
+        ''' Redirect the user to the login page if the user is not logged in '''
+        return reverse('login') # redirecting to the login page
+
+class CreateIdeaView(LoginRequiredMixin, CreateView):
+    '''
+    Creating a view to create an idea
+    '''
+
+    form_class = CreateIdeaForm
+    template_name = 'storyplanning/create_idea.html'
+    context_object_name = 'idea'
+
+    def get_login_url(self):
+        ''' Redirect the user to the login page if the user is not logged in '''
+        return reverse('login') # redirecting to the login page
+
+    def form_valid(self, form):
+        ''' Add the user to the idea and save it '''
+        form.instance.user = self.request.user
+        return super().form_valid(form)

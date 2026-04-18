@@ -12,7 +12,13 @@
             {% csrf_token %}
             {{form}}
             <input type="submit" value="Login">
-            <input type="hidden" name="next" value="{% url 'show_all_ideas' %}">
+
+            {% if request.GET.next %}
+                <input type="hidden" name="next" value="{{request.GET.next}}">
+            {% else %}
+                <input type="hidden" name="next" value="{% url 'show_all_ideas' %}">
+            {% endif %}
+            
         </form>
     </body>
 </html>

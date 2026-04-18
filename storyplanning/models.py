@@ -4,8 +4,8 @@
 # Creating the models for the story planning app
 
 from django.db import models
-
-# Create your models here.
+from django.contrib.auth.models import User # importing the User model
+from django.urls import reverse # importing the reverse function
 
 class Idea(models.Model):
     ''' models the data attributes of an idea '''
@@ -13,12 +13,28 @@ class Idea(models.Model):
     title = models.TextField()
     storyboard = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now=True)
-    #user = models.ForeignKey(User, on_delete=models.CASCADE) # adding to the Idea model to link it to the User model
+    user = models.ForeignKey(User, on_delete=models.CASCADE) # adding to the Idea model to link it to the User model
 
     def __str__(self):
         ''' returns a string representation of the Idea model that is just the title '''
         return f'{self.title}'
 
+    def get_absolute_url(self):
+        ''' returns the absolute url for the Idea model so when a new idea is created, it will redirect to the idea page '''
+        return reverse('idea', kwargs={'pk': self.pk})
+
+    def get_all_scenes(self):
+        ''' returns all scenes for an idea '''
+        return Scene.objects.filter(idea=self)
+
+    def get_all_characters(self):
+        ''' returns all characters for an idea '''
+        return Character.objects.filter(idea=self)
+
+    def get_all_images(self):
+        ''' returns all images for an idea '''
+        return Image.objects.filter(idea=self)
+        
 
 class Scene(models.Model):
     ''' models the data attributes of a scene '''

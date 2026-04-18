@@ -5,13 +5,16 @@
 
 from django.urls import path
 from . import views
-
+from .views import * # importing all the views from the views.py file
 from django.contrib.auth import views as auth_views # importing the views for the authentication system
-from .views import ShowAllIdeas # importing the view to show all ideas
 
 urlpatterns = [
     path(r'', auth_views.LoginView.as_view(template_name='storyplanning/login.html'), name='home'), # default URL pattern for the app which will take user's to the login page
+    
+    # URL patterns for the idea views
     path(r'ideas/', ShowAllIdeas.as_view(), name='show_all_ideas'), # URL pattern for the view to show all ideas
+    path(r'idea/create/', CreateIdeaView.as_view(), name='create_idea'), # URL pattern for the view to create an idea
+    path(r'idea/<int:pk>/', IdeaView.as_view(), name='idea'), # URL pattern for the view to show an idea
 
     # Authentication URLs
     path(r'login/', auth_views.LoginView.as_view(template_name='storyplanning/login.html'), name='login'), # providing the template and login form via the auth_views.LoginView

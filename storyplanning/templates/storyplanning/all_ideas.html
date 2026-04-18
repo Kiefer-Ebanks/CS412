@@ -8,9 +8,11 @@
         <h1>All Ideas</h1>
         <h3>Here are all of your ideas:</h3>
         <ul>
+            <li><a href="{% url 'create_idea' %}">Create Idea</a></li>
             {% for idea in ideas %}
-                <li>{{ idea.title }}</li>
-                <p>{{ idea.storyboard }}</p>
+                <li>
+                    <a href="{% url 'idea' idea.pk %}">{{ idea.title }}</a>
+                </li>
             {% endfor %}
         </ul>
 {% endblock %}
