@@ -5,7 +5,7 @@
 
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView, DetailView # importing the ListView, CreateView, and DetailView for the ideas page
-from .models import Idea # importing the Idea model for the ideas page
+from .models import Idea, Scene # importing the Idea and Scene models for the ideas and scenes pages
 from .forms import CreateIdeaForm # importing the CreateIdeaForm for the ideas page
 from django.contrib.auth.mixins import LoginRequiredMixin # importing the LoginRequiredMixin for authentication
 from django.urls import reverse # importing the reverse function
@@ -82,3 +82,19 @@ class UserRegistrationView(CreateView):
         response = super().form_valid(form) # calling the form_valid method to save the new user object and build the redirect to get_success_url()
         login(self.request, self.object) # logging in the user with the new userobject that was created
         return response 
+
+class SceneView(LoginRequiredMixin, DetailView):
+    ''' Creating a view to show a scene '''
+
+    model = Scene
+    template_name = 'storyplanning/scene.html'
+    context_object_name = 'scene'
+    pk_url_kwarg = 'scene_pk'  # Tell DetailView to use scene_pk instead of pk
+
+    def get_login_url(self):
+        ''' Redirect the user to the login page if the user is not logged in '''
+        return reverse('login')
+
+    def get_queryset(self):
+        ''' Return the queryset of scenes that belong to the logged-in user '''
+        return Scene.objects.filter(idea__user=self.request.user)

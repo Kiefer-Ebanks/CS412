@@ -15,6 +15,8 @@ urlpatterns = [
     path(r'ideas/', ShowAllIdeas.as_view(), name='show_all_ideas'), # URL pattern for the view to show all ideas
     path(r'idea/create/', CreateIdeaView.as_view(), name='create_idea'), # URL pattern for the view to create an idea
     path(r'idea/<int:pk>/', IdeaView.as_view(), name='idea'), # URL pattern for the view to show an idea
+    path(r'idea/<int:idea_pk>/scene/<int:scene_pk>/', SceneView.as_view(), name='scene'), # URL pattern for the view to show a scene
+    path(r'scene/<int:scene_pk>/', SceneView.as_view(), name='scene_only'), # another URL pattern for the same view that shows a scene (got the idea from speaking to Professor Stevens)
 
     # Authentication URLs
     path(r'login/', auth_views.LoginView.as_view(template_name='storyplanning/login.html'), name='login'), # providing the template and login form via the auth_views.LoginView

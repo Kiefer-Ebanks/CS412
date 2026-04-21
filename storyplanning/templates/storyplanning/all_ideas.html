@@ -12,7 +12,9 @@
             {% for idea in ideas %}
                 <li>
                     <a href="{% url 'idea' idea.pk %}">{{ idea.title }}</a>
+                    <p>{{ idea.outline }}</p>
                 </li>
             {% endfor %}
         </ul>
+
 {% endblock %}

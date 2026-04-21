@@ -8,4 +8,18 @@
         <h1>{{ idea.title }}</h1>
         <h2>Storyboard:</h2>
         <p>{{ idea.storyboard }}</p>
+
+
+        <h2>Scenes:</h2>
+
+        <ul>
+
+        {% for scene in idea.get_all_scenes %}
+            <li>
+                <a href="{% url 'scene' idea.pk scene.pk %}">{{ scene.title }}</a> <!-- using the scene url pattern not the scene_only url pattern arbitrarily -->
+                <p>{{ scene.outline }}</p>
+            </li>
+        {% endfor %}
+        </ul>
+
 {% endblock %}

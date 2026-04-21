@@ -24,7 +24,7 @@ class Idea(models.Model):
         return reverse('idea', kwargs={'pk': self.pk})
 
     def get_all_scenes(self):
-        ''' returns all scenes for an idea '''
+        ''' returns all scenes related to an idea by Foreign Key'''
         return Scene.objects.filter(idea=self)
 
     def get_all_characters(self):

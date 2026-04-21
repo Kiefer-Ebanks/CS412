@@ -1,0 +1,16 @@
+<!-- File: scene.html -->
+<!-- Author: Kiefer Ebanks (kebanks@bu.edu), 4/21/2026 -->
+<!-- Description: The page that displays a single scene -->
+<!-- The html template that takes in context from the views.py SceneView function and 
+links to base.html to display the single scene -->
+
+{% extends 'storyplanning/base.html' %} <!-- linking to the base.html template-->
+
+{% block content %}
+
+    <a href="{% url 'idea' scene.idea.pk %}">Back to Idea</a>
+
+    <h1>{{ scene.title }}</h1>
+    <p>{{ scene.outline }}</p>
+    <p>{{ scene.script }}</p>
+{% endblock %}
