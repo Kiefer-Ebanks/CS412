@@ -9,14 +9,20 @@ from .views import * # importing all the views from the views.py file
 from django.contrib.auth import views as auth_views # importing the views for the authentication system
 
 urlpatterns = [
-    path(r'', auth_views.LoginView.as_view(template_name='storyplanning/login.html'), name='home'), # default URL pattern for the app which will take user's to the login page
+    path(r'', auth_views.LoginView.as_view(template_name='storyplanning/login.html'), name='home'), # default URL pattern for the app which will take users to the login page
     
     # URL patterns for the idea views
     path(r'ideas/', ShowAllIdeas.as_view(), name='show_all_ideas'), # URL pattern for the view to show all ideas
     path(r'idea/create/', CreateIdeaView.as_view(), name='create_idea'), # URL pattern for the view to create an idea
     path(r'idea/<int:pk>/', IdeaView.as_view(), name='idea'), # URL pattern for the view to show an idea
+
+    # URL patterns for the scene views
     path(r'idea/<int:idea_pk>/scene/<int:scene_pk>/', SceneView.as_view(), name='scene'), # URL pattern for the view to show a scene
     path(r'scene/<int:scene_pk>/', SceneView.as_view(), name='scene_only'), # another URL pattern for the same view that shows a scene (got the idea from speaking to Professor Stevens)
+    path(r'idea/<int:idea_pk>/create_scene/', CreateSceneView.as_view(), name='create_scene'), # URL pattern for the view to create a scene for an idea
+
+    # URL patterns for the character views
+    path(r'idea/<int:idea_pk>/character/<int:character_pk>/', CharacterView.as_view(), name='character'), # URL pattern for the view to show a character
 
     # Authentication URLs
     path(r'login/', auth_views.LoginView.as_view(template_name='storyplanning/login.html'), name='login'), # providing the template and login form via the auth_views.LoginView

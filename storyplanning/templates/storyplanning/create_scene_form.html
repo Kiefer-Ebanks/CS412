@@ -1,0 +1,19 @@
+<!-- File: create_scene_form.html -->
+<!-- Author: Kiefer Ebanks (kebanks@bu.edu), 4/22/2026 -->
+<!-- Description: The template for creating a scene -->
+
+{% extends 'storyplanning/base.html' %}
+
+{% block content %}
+
+<h1>Create a Scene</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <table>
+        {{ form.as_table }}
+    </table>
+    <button type="submit">Create Idea</button>
+</form>
+
+{% endblock %}

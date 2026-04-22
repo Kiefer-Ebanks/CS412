@@ -5,8 +5,8 @@
 
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView, DetailView # importing the ListView, CreateView, and DetailView for the ideas page
-from .models import Idea, Scene # importing the Idea and Scene models for the ideas and scenes pages
-from .forms import CreateIdeaForm # importing the CreateIdeaForm for the ideas page
+from .models import Idea, Scene, Character # importing the Idea, Scene, and Character models for the ideas, scenes, and characters pages
+from .forms import * # importing the CreateIdeaForm, CreateSceneForm, and CreateCharacterForm for the ideas, scenes, and characters pages
 from django.contrib.auth.mixins import LoginRequiredMixin # importing the LoginRequiredMixin for authentication
 from django.urls import reverse # importing the reverse function
 from django.contrib.auth.forms import UserCreationForm # importing the UserCreationForm for creating a new user
@@ -45,6 +45,10 @@ class IdeaView(LoginRequiredMixin, DetailView):
     def get_queryset(self):
         ''' Return the queryset of ideas that belong to the logged-in user '''
         return Idea.objects.filter(user=self.request.user)
+    
+    def get_all_characters(self):
+        ''' Return all characters that belong to the idea '''
+        return Character.objects.filter(idea=self.get_object())
 
 class CreateIdeaView(LoginRequiredMixin, CreateView):
     '''
@@ -52,7 +56,7 @@ class CreateIdeaView(LoginRequiredMixin, CreateView):
     '''
 
     form_class = CreateIdeaForm
-    template_name = 'storyplanning/create_idea.html'
+    template_name = 'storyplanning/create_idea_form.html'
     context_object_name = 'idea'
 
     def get_login_url(self):
@@ -97,4 +101,43 @@ class SceneView(LoginRequiredMixin, DetailView):
 
     def get_queryset(self):
         ''' Return the queryset of scenes that belong to the logged-in user '''
-        return Scene.objects.filter(idea__user=self.request.user)
+        return Scene.objects.filter(idea=self.kwargs['idea_pk'])
+
+class CreateSceneView(LoginRequiredMixin, CreateView):
+    ''' Creating a view to create a scene '''
+
+    form_class = CreateSceneForm
+    template_name = 'storyplanning/create_scene_form.html'
+    context_object_name = 'scene'
+
+    def get_login_url(self):
+        ''' Redirect the user to the login page if the user is not logged in '''
+        return reverse('login')
+
+    def form_valid(self, form):
+        ''' Add the user to the scene and save it '''
+
+        form.instance.idea = Idea.objects.get(pk=self.kwargs['idea_pk']) # adding the foreign key of the idea to the scene object before saving it to the database
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        ''' Redirect the user to the idea page after creating a scene '''
+
+        # using the idea_pk from the URL pattern and the scene_pk of the scene that was just created to redirect the user to the scene page of the newly created scene
+        return reverse('scene', kwargs={'idea_pk': self.kwargs['idea_pk'], 'scene_pk': self.object.pk})
+    
+class CharacterView(LoginRequiredMixin, DetailView):
+    ''' Creating a view to show a character '''
+
+    model = Character
+    template_name = 'storyplanning/character.html'
+    context_object_name = 'character'
+    pk_url_kwarg = 'character_pk'  # Tell DetailView to use character_pk instead of pk
+
+    def get_login_url(self):
+        ''' Redirect the user to the login page if the user is not logged in '''
+        return reverse('login')
+
+    def get_queryset(self):
+        ''' Return the queryset of characters that belong to the logged-in user '''
+        return Character.objects.filter(idea=self.kwargs['idea_pk'])
