@@ -7,13 +7,14 @@
 {% block content %}
 
 <h1>Create a Scene</h1>
+<p>Create a new scene for the idea: {{ idea.title }}</p>
 
 <form method="post">
     {% csrf_token %}
     <table>
         {{ form.as_table }}
     </table>
-    <button type="submit">Create Idea</button>
+    <button type="submit">Create Scene</button>
 </form>
 
 {% endblock %}

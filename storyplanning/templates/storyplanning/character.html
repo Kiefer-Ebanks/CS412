@@ -1,3 +1,27 @@
 <!-- File: character.html -->
 <!-- Author: Kiefer Ebanks (kebanks@bu.edu), 4/21/2026 -->
 <!-- Description: The page to display a character -->
+
+{% extends 'storyplanning/base.html' %}
+
+{% block content %}
+
+<a href="{% url 'idea' character.idea.pk %}">Back to Idea</a>
+
+{% if character.scene %}
+    <a href="{% url 'scene' character.idea.pk character.scene.pk %}">Back to Scene</a>
+{% endif %}
+
+<h1>Character: {{ character.name }}</h1>
+<p>Description: {{ character.description }}</p>
+
+
+{% if character.scene %}
+    <p>Scene: {{ character.scene.title }}</p>
+{% endif %}
+
+{% if character.idea %}
+    <p>Idea: {{ character.idea.title }}</p>
+{% endif %}
+
+{% endblock %}

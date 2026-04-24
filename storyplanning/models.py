@@ -49,6 +49,11 @@ class Scene(models.Model):
         ''' returns a string representation of the Scene model that is just the title '''
         return f'{self.title}'
 
+    def get_all_characters(self):
+        ''' returns all characters for a scene '''
+        
+        return Character.objects.filter(scene=self)
+
 
 class Character(models.Model):
     ''' models the data attributes of a character '''

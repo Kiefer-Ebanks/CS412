@@ -9,11 +9,24 @@
         <h2>Storyboard:</h2>
         <p>{{ idea.storyboard }}</p>
 
+        <h2>Characters:</h2>
+        <ul>
+            <li>
+                <a href="{% url 'create_character' idea.pk %}">Create Character</a>
+            </li>
+
+            {% for character in idea.get_all_characters %}
+            <li>
+                <a href="{% url 'character' idea.pk character.pk %}">{{ character.name }}</a>
+            </li>
+            {% endfor %}
+        </ul>
 
         <h2>Scenes:</h2>
-
         <ul>
-
+            <li>
+                <a href="{% url 'create_scene' idea.pk %}">Create Scene</a>
+            </li>
         {% for scene in idea.get_all_scenes %}
             <li>
                 <a href="{% url 'scene' idea.pk scene.pk %}">{{ scene.title }}</a> <!-- using the scene url pattern not the scene_only url pattern arbitrarily -->

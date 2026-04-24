@@ -113,9 +113,16 @@ class CreateSceneView(LoginRequiredMixin, CreateView):
     def get_login_url(self):
         ''' Redirect the user to the login page if the user is not logged in '''
         return reverse('login')
+    
+    def get_context_data(self, **kwargs):
+        ''' Add the idea object to the context so the template can show the idea title '''
+
+        context = super().get_context_data(**kwargs)
+        context['idea'] = Idea.objects.get(pk=self.kwargs['idea_pk'])
+        return context
 
     def form_valid(self, form):
-        ''' Add the user to the scene and save it '''
+        ''' Add the idea object to the scene and save it '''
 
         form.instance.idea = Idea.objects.get(pk=self.kwargs['idea_pk']) # adding the foreign key of the idea to the scene object before saving it to the database
         return super().form_valid(form)
@@ -132,12 +139,57 @@ class CharacterView(LoginRequiredMixin, DetailView):
     model = Character
     template_name = 'storyplanning/character.html'
     context_object_name = 'character'
-    pk_url_kwarg = 'character_pk'  # Tell DetailView to use character_pk instead of pk
+    pk_url_kwarg = 'character_pk'  # Telling DetailView to use character_pk instead of pk
 
     def get_login_url(self):
         ''' Redirect the user to the login page if the user is not logged in '''
+
         return reverse('login')
 
     def get_queryset(self):
         ''' Return the queryset of characters that belong to the logged-in user '''
+
         return Character.objects.filter(idea=self.kwargs['idea_pk'])
+
+
+class CreateCharacterView(LoginRequiredMixin, CreateView):
+    ''' Creating a view to create a character '''
+
+    form_class = CreateCharacterForm
+    template_name = 'storyplanning/create_character_form.html'
+    context_object_name = 'character'
+    
+    def get_login_url(self):
+        ''' Redirect the user to the login page if the user is not logged in '''
+        return reverse('login')
+
+    def form_valid(self, form):
+        ''' Adding the idea and scene objects to the character and save it '''
+
+        form.instance.idea = Idea.objects.get(pk=self.kwargs['idea_pk']) # adding the foreign key of the idea to the character object before saving it to the database
+
+        if 'scene_pk' in self.kwargs:
+            form.instance.scene = Scene.objects.get(pk=self.kwargs['scene_pk']) # adding the foreign key of the scene to the character object before saving it to the database
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        ''' Redirect the user to the idea page after creating a scene '''
+
+        if 'scene_pk' in self.kwargs:
+            # redirecting to the character_for_scene page if a scene_pk is provided
+            return reverse('character_for_scene', kwargs={'idea_pk': self.kwargs['idea_pk'], 'scene_pk': self.kwargs['scene_pk'], 'character_pk': self.object.pk})
+        else:
+            # redirecting to the character page if no scene_pk is provided
+            return reverse('character', kwargs={'idea_pk': self.kwargs['idea_pk'], 'character_pk': self.object.pk})
+
+    def get_context_data(self, **kwargs):
+        ''' Add the idea object to the context so the template can show the idea title '''
+
+        context = super().get_context_data(**kwargs)
+        context['idea'] = Idea.objects.get(pk=self.kwargs['idea_pk'])
+
+        if 'scene_pk' in self.kwargs:
+            context['scene'] = Scene.objects.get(pk=self.kwargs['scene_pk'])
+        return context
+

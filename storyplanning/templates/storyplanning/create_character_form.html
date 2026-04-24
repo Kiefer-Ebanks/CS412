@@ -1,0 +1,26 @@
+<!-- File: create_character_form.html -->
+<!-- Author: Kiefer Ebanks (kebanks@bu.edu), 4/23/2026 -->
+<!-- Description: The template for creating a character -->
+
+{% extends 'storyplanning/base.html' %}
+
+{% block content %}
+
+<h1>Create a Character</h1>
+<p>Create a new character
+    {% if scene %}
+    for the scene: {{ scene.title }}
+    {% else %}
+    for the idea: {{ idea.title }}
+    {% endif %}
+</p>
+
+<form method="post">
+    {% csrf_token %}
+    <table>
+        {{ form.as_table }}
+    </table>
+    <button type="submit">Create Character</button>
+</form>
+
+{% endblock %}

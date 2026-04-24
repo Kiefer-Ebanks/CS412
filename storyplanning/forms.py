@@ -3,7 +3,7 @@
 # Description: The forms file for the story planning app
 
 from django import forms
-from .models import Idea, Scene
+from .models import Idea, Scene, Character
 
 class CreateIdeaForm(forms.ModelForm):
     ''' A form to create an idea '''
@@ -18,3 +18,10 @@ class CreateSceneForm(forms.ModelForm):
     class Meta:
         model = Scene
         fields = ['title', 'outline', 'script']
+
+class CreateCharacterForm(forms.ModelForm):
+    ''' A form to create a character '''
+
+    class Meta:
+        model = Character
+        fields = ['name', 'description']
