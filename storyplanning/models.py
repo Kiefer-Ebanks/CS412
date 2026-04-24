@@ -51,8 +51,13 @@ class Scene(models.Model):
 
     def get_all_characters(self):
         ''' returns all characters for a scene '''
-        
+
         return Character.objects.filter(scene=self)
+
+    def get_all_images(self):
+        ''' Images for this scene (directly tagged) or for any character in this scene '''
+
+        return Image.objects.filter(scene=self)
 
 
 class Character(models.Model):
@@ -70,6 +75,11 @@ class Character(models.Model):
         ''' returns a string representation of the Character model that is just the name '''
         return f'{self.name}'
 
+    def get_all_images(self):
+        ''' returns all images for a character '''
+
+        return Image.objects.filter(character=self)
+
 
 class Image(models.Model):
     ''' models the data attributes of an image '''
@@ -77,10 +87,11 @@ class Image(models.Model):
     # Defining the data attributes of the Image model
     image_url = models.URLField(blank=True) # field for the image url
     image_file = models.ImageField( blank=True) # field for the image file
+    description = models.TextField(blank=True) # field for the image description
     timestamp = models.DateTimeField(auto_now=True)
-    scene = models.ForeignKey(Scene, on_delete=models.CASCADE) # linking the Image model to the Scene model with a foreign key
+    scene = models.ForeignKey(Scene, on_delete=models.CASCADE, null=True, blank=True) # linking the Image model to the Scene model with a foreign key
     character = models.ForeignKey(Character, on_delete=models.CASCADE, null=True, blank=True) # linking the Image model to the Character model with a foreign key
-    idea = models.ForeignKey(Idea, on_delete=models.CASCADE, null=True, blank=True) # linking the Image model to the Idea model with a foreign key
+    idea = models.ForeignKey(Idea, on_delete=models.CASCADE) # linking the Image model to the Idea model with a foreign key
 
     def get_image_url(self):
         ''' returns the image url for an image '''
@@ -92,4 +103,4 @@ class Image(models.Model):
 
     def __str__(self):
         ''' returns a string representation of the Image model that is just the image_url '''
-        return f'{self.get_image_url()}'
+        return f'{self.description}'

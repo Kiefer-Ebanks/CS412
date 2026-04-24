@@ -24,4 +24,17 @@
     <p>Idea: {{ character.idea.title }}</p>
 {% endif %}
 
+{% if character.get_all_images.count > 0 %}
+    <h2>Images</h2>
+    <ul>
+        {% for image in character.get_all_images %}
+            <li>
+                <a href="{% url 'image_for_character' character.idea.pk character.pk image.pk %}">
+                    <img src="{{ image.get_image_url }}" alt="{{ image.description }}">
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
 {% endblock %}

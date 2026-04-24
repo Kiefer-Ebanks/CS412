@@ -4,6 +4,7 @@
 # Creating the views for the story planning app
 
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
 from django.views.generic import ListView, CreateView, DetailView # importing the ListView, CreateView, and DetailView for the ideas page
 from .models import Idea, Scene, Character # importing the Idea, Scene, and Character models for the ideas, scenes, and characters pages
 from .forms import * # importing the CreateIdeaForm, CreateSceneForm, and CreateCharacterForm for the ideas, scenes, and characters pages
@@ -193,3 +194,101 @@ class CreateCharacterView(LoginRequiredMixin, CreateView):
             context['scene'] = Scene.objects.get(pk=self.kwargs['scene_pk'])
         return context
 
+class ImageView(LoginRequiredMixin, DetailView):
+    ''' Creating a view to show an image '''
+
+    model = Image
+    template_name = 'storyplanning/image.html'
+    context_object_name = 'image'
+    pk_url_kwarg = 'image_pk'  # Telling DetailView to use image_pk instead of pk
+
+    def get_login_url(self):
+        ''' Redirect the user to the login page if the user is not logged in '''
+        return reverse('login')
+
+    def get_queryset(self):
+        ''' Return the queryset of images that belong to the logged-in user '''
+
+        return Image.objects.filter(idea=self.kwargs['idea_pk'])
+
+
+class CreateImageView(LoginRequiredMixin, CreateView):
+    ''' Creating a view to create an image '''
+
+    form_class = CreateImageForm
+    template_name = 'storyplanning/create_image_form.html'
+    context_object_name = 'image'
+
+    def get_login_url(self):
+        ''' Redirect the user to the login page if the user is not logged in '''
+        return reverse('login')
+
+    def form_valid(self, form):
+        ''' Add the idea and scene objects to the image and save it '''
+
+        idea = Idea.objects.get(pk=self.kwargs['idea_pk']) # adding the foreign key of the idea to the image object before saving it to the database
+        scene = None
+        character = None
+
+        if 'scene_pk' in self.kwargs:
+            scene = Scene.objects.get(pk=self.kwargs['scene_pk']) # adding the foreign key of the scene to the image object before saving it to the database
+
+        if 'character_pk' in self.kwargs:
+            character = Character.objects.get(pk=self.kwargs['character_pk']) # adding the foreign key of the character to the image object before saving it to the database
+
+        image_url = self.request.POST.get('image_url')
+        description = self.request.POST.get('description')
+        files = self.request.FILES.getlist('files') # Read the image files from self.request.FILES
+
+        # Require either a URL or at least one uploaded file
+        if not image_url and not files:
+            form.add_error('image_url', 'Add an image URL or upload at least one image')
+            return self.form_invalid(form)
+
+        created_images = []
+        for file in files:
+            created_images.append(Image.objects.create( # create a new Image object for each file with the saved idea, scene, character, and description
+                idea=idea,
+                scene=scene,
+                character=character,
+                image_file=file,
+                description=description,
+            ))
+
+        # this is the url only path if the user only provides a URL and no files
+        if not created_images:
+            created_images.append(Image.objects.create( # create a new Image object with the saved idea, scene, character, image_url, and description
+                idea=idea,
+                scene=scene,
+                character=character,
+                image_url=image_url,
+                description=description,
+            ))
+
+        self.object = created_images[0] # set the self.object to the first created image
+        return HttpResponseRedirect(self.get_success_url()) # redirect the user to the success url
+
+    def get_success_url(self):
+        ''' Redirect the user to the image page after creating an image '''
+
+        if 'scene_pk' in self.kwargs:
+            return reverse('image_for_scene', kwargs={'idea_pk': self.kwargs['idea_pk'], 'scene_pk': self.kwargs['scene_pk'], 'image_pk': self.object.pk})
+        elif 'character_pk' in self.kwargs:
+            return reverse('image_for_character', kwargs={'idea_pk': self.kwargs['idea_pk'], 'character_pk': self.kwargs['character_pk'], 'image_pk': self.object.pk})
+        else:
+            return reverse('image', kwargs={'idea_pk': self.kwargs['idea_pk'], 'image_pk': self.object.pk})
+
+
+    def get_context_data(self, **kwargs):
+        ''' Add the idea object to the context so the template can show the idea title '''
+
+        context = super().get_context_data(**kwargs)
+        context['idea'] = Idea.objects.get(pk=self.kwargs['idea_pk'])
+
+        if 'scene_pk' in self.kwargs:
+            context['scene'] = Scene.objects.get(pk=self.kwargs['scene_pk'])
+
+        if 'character_pk' in self.kwargs:
+            context['character'] = Character.objects.get(pk=self.kwargs['character_pk'])
+
+        return context

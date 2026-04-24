@@ -12,6 +12,10 @@ links to base.html to display the single scene -->
 
     <a href="{% url 'create_character_for_scene' idea_pk=scene.idea.pk scene_pk=scene.pk %}">Create Character</a>
 
+    <h1>{{ scene.title }}</h1>
+    <p>{{ scene.outline }}</p>
+    <p>{{ scene.script }}</p>
+
     <h2>Characters</h2>
     <ul>
         {% for character in scene.get_all_characters %}
@@ -21,7 +25,15 @@ links to base.html to display the single scene -->
         {% endfor %}
     </ul>
 
-    <h1>{{ scene.title }}</h1>
-    <p>{{ scene.outline }}</p>
-    <p>{{ scene.script }}</p>
+    <h2>Images</h2>
+    <ul>
+        {% for image in scene.get_all_images %}
+        <li>
+            <a href="{% url 'image_for_scene' idea_pk=scene.idea.pk scene_pk=scene.pk image_pk=image.pk %}">
+                <img src="{{ image.get_image_url }}" alt="{{ image.description }}">
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+
 {% endblock %}

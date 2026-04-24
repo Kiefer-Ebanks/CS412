@@ -5,10 +5,10 @@ name = "pypi"
 
 [packages]
 django = "*"
-pillow = "*"
 djangorestframework = "*"
 django-cors-headers = "*"
 plotly = "*"
+pillow = "*"
 
 [dev-packages]
 

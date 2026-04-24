@@ -26,6 +26,15 @@ urlpatterns = [
     path(r'idea/<int:idea_pk>/create_character/', CreateCharacterView.as_view(), name='create_character'), # URL pattern for the view to create a character for an idea
     path(r'idea/<int:idea_pk>/scene/<int:scene_pk>/character/<int:character_pk>/', CharacterView.as_view(), name='character_for_scene'), # URL pattern for the view to see a character related to a specific scene
     path(r'idea/<int:idea_pk>/scene/<int:scene_pk>/create_character/', CreateCharacterView.as_view(), name='create_character_for_scene'), # URL pattern for the view to create a character for a specific scene
+    
+    # URL patterns for the image views
+    path(r'idea/<int:idea_pk>/image/<int:image_pk>/', ImageView.as_view(), name='image'), # URL pattern for the view to show an image from an idea
+    path(r'idea/<int:idea_pk>/create_image/', CreateImageView.as_view(), name='create_image'), # URL pattern for the view to create an image for an idea
+    path(r'idea/<int:idea_pk>/scene/<int:scene_pk>/image/<int:image_pk>/', ImageView.as_view(), name='image_for_scene'), # URL pattern for the view to show an image related to a specific scene
+    path(r'idea/<int:idea_pk>/scene/<int:scene_pk>/create_image/', CreateImageView.as_view(), name='create_image_for_scene'), # URL pattern for the view to create an image for a specific scene
+    path(r'idea/<int:idea_pk>/character/<int:character_pk>/image/<int:image_pk>/', ImageView.as_view(), name='image_for_character'), # URL pattern for the view to show an image related to a specific character
+    path(r'idea/<int:idea_pk>/character/<int:character_pk>/create_image/', CreateImageView.as_view(), name='create_image_for_character'), # URL pattern for the view to create an image for a specific character
+    
     # Authentication URLs
     path(r'login/', auth_views.LoginView.as_view(template_name='storyplanning/login.html'), name='login'), # providing the template and login form via the auth_views.LoginView
     path(r'logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'), # providing the template and logout form via the auth_views.LogoutView

@@ -1,0 +1,24 @@
+<!-- Author: Kiefer Ebanks (kebanks@bu.edu), 4/24/2026 -->
+<!-- Description: The page to display an image -->
+
+{% extends 'storyplanning/base.html' %}
+
+{% block content %}
+
+<a href="{% url 'idea' image.idea.pk %}">Back to Idea: {{ image.idea.title }}</a>
+
+{% if image.scene %}
+    <a href="{% url 'scene' image.idea.pk image.scene.pk %}">Back to Scene: {{ image.scene.title }}</a>
+{% endif %}
+
+{% if image.character %}
+    <a href="{% url 'character' image.idea.pk image.character.pk %}">Back to Character: {{ image.character.name }}</a>
+{% endif %}
+
+
+<img src="{{ image.get_image_url }}" alt="{{ image.description }}">
+
+<p>Description: {{ image.description }}</p>
+
+
+{% endblock %}

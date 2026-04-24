@@ -1,0 +1,57 @@
+<!-- File: create_image_form.html -->
+<!-- Author: Kiefer Ebanks (kebanks@bu.edu), 4/24/2026 -->
+<!-- Description: The template for creating an image -->
+
+{% extends 'storyplanning/base.html' %}
+
+{% block content %}
+
+<h1>Add an Image</h1>
+<p>Add a new image
+    {% if scene %}
+    to the scene: {{ scene.title }}
+    {% elif character %}
+    for the character: {{ character.name }}
+    {% else %}
+    for the idea: {{ idea.title }}
+    {% endif %}
+</p>
+
+<form
+    {% if scene %}
+    action="{% url 'create_image_for_scene' idea.pk scene.pk %}"
+
+    {% elif character %}
+    action="{% url 'create_image_for_character' idea.pk character.pk %}"
+
+    {% else %}
+    action="{% url 'create_image' idea.pk %}"
+
+    {% endif %}
+
+    method="POST"
+    enctype="multipart/form-data"
+>
+    {% csrf_token %}
+
+    <table>
+        {{ form.as_table }}
+    </table>
+
+    <label for="files">Images</label>
+    <input id="files" type="file" multiple name="files">
+
+    <button type="submit">Create Image</button>
+    
+    <a href="{% url 'idea' idea.pk %}">Cancel back to idea</a>
+
+    {% if scene %}
+    <a href="{% url 'scene' idea.pk scene.pk %}">Cancel back to scene</a>
+    {% endif %}
+
+    {% if character %}
+    <a href="{% url 'character' idea.pk character.pk %}">Cancel back to character </a>
+    {% endif %}
+</form>
+
+{% endblock %}

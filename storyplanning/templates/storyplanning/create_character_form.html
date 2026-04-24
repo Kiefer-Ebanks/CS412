@@ -17,10 +17,13 @@
 
 <form method="post">
     {% csrf_token %}
+
     <table>
         {{ form.as_table }}
     </table>
+
     <button type="submit">Create Character</button>
+    
 </form>
 
 {% endblock %}
