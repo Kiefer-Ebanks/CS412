@@ -3,10 +3,10 @@
 # Description: The views file for the story planning app
 # Creating the views for the story planning app
 
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.views.generic import ListView, CreateView, DetailView # importing the ListView, CreateView, and DetailView for the ideas page
-from .models import Idea, Scene, Character # importing the Idea, Scene, and Character models for the ideas, scenes, and characters pages
+from .models import Idea, Scene, Character, Image # models for the story planning app
 from .forms import * # importing the CreateIdeaForm, CreateSceneForm, and CreateCharacterForm for the ideas, scenes, and characters pages
 from django.contrib.auth.mixins import LoginRequiredMixin # importing the LoginRequiredMixin for authentication
 from django.urls import reverse # importing the reverse function
@@ -207,9 +207,17 @@ class ImageView(LoginRequiredMixin, DetailView):
         return reverse('login')
 
     def get_queryset(self):
-        ''' Return the queryset of images that belong to the logged-in user '''
+        ''' Return the queryset of images that belong to the logged-in user across all ideas, scenes, and characters '''
+        idea_pk = self.kwargs['idea_pk']
 
-        return Image.objects.filter(idea=self.kwargs['idea_pk'])
+        if 'character_pk' in self.kwargs:
+            return Image.objects.filter(idea=idea_pk, character=self.kwargs['character_pk'])
+            
+        if 'scene_pk' in self.kwargs:
+            scene = get_object_or_404(Scene, pk=self.kwargs['scene_pk'], idea=idea_pk) # ensuring the scene belongs to the idea and the scene actually exists
+            return scene.get_all_images()
+
+        return Image.objects.filter(idea=idea_pk)
 
 
 class CreateImageView(LoginRequiredMixin, CreateView):

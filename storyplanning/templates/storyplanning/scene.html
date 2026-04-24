@@ -8,12 +8,17 @@ links to base.html to display the single scene -->
 
 {% block content %}
 
+
     <a href="{% url 'idea' scene.idea.pk %}">Back to Idea</a>
 
     <a href="{% url 'create_character_for_scene' idea_pk=scene.idea.pk scene_pk=scene.pk %}">Create Character</a>
 
-    <h1>{{ scene.title }}</h1>
+    <h1>Scene: {{ scene.title }}</h1>
+
+    <h2>Outline</h2>
     <p>{{ scene.outline }}</p>
+
+    <h2>Script</h2>
     <p>{{ scene.script }}</p>
 
     <h2>Characters</h2>

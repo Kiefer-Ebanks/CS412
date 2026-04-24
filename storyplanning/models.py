@@ -55,9 +55,14 @@ class Scene(models.Model):
         return Character.objects.filter(scene=self)
 
     def get_all_images(self):
-        ''' Images for this scene (directly tagged) or for any character in this scene '''
-
-        return Image.objects.filter(scene=self)
+        '''
+        Images for this scene: row has scene=self, and/or the image’s character
+        is tied to this scene. Rows with both scene and character set still appear once.
+        '''
+        return (
+            Image.objects.filter(scene=self)
+            | Image.objects.filter(character__scene=self)
+        ).distinct()
 
 
 class Character(models.Model):
