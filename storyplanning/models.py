@@ -55,14 +55,10 @@ class Scene(models.Model):
         return Character.objects.filter(scene=self)
 
     def get_all_images(self):
-        '''
-        Images for this scene: row has scene=self, and/or the image’s character
-        is tied to this scene. Rows with both scene and character set still appear once.
-        '''
-        return (
-            Image.objects.filter(scene=self)
-            | Image.objects.filter(character__scene=self)
-        ).distinct()
+        ''' Gets all images for a scene. Returns a queryset of all images that are either tied to the scene or to a character in the scene '''
+        
+        # returns a queryset of all images that are either tied to the scene or to a character in the scene
+        return Image.objects.filter(scene=self) | Image.objects.filter(character__scene=self).distinct() # The distinct() method is used to remove duplicate images from the queryset in case there are any images that are tied to both the scene and a character in the scene
 
 
 class Character(models.Model):

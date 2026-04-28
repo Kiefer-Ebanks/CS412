@@ -154,11 +154,15 @@ REST_FRAMEWORK = {
   ]
 }
 
-# Need to allow cors because without it, the dadjokes api will not work in the browser.
-if DEBUG:
-    CORS_ALLOW_ALL_ORIGINS = True
-else:
-    CORS_ALLOWED_ORIGIN_REGEXES = [
-        r'^http://localhost:\d+$',
-        r'^http://127\.0\.0\.1:\d+$',
-    ]
+# Need to allow cors because without it, the dadjokes and storyplanning api will not work in the browser
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+]
+CORS_ALLOW_CREDENTIALS = True
+
+# Required for CSRF-protected POST/PATCH/DELETE from React dev server
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+]

@@ -8,11 +8,19 @@ from django.http import HttpResponseRedirect
 from django.views.generic import ListView, CreateView, DetailView # importing the ListView, CreateView, and DetailView for the ideas page
 from .models import Idea, Scene, Character, Image # models for the story planning app
 from .forms import * # importing the CreateIdeaForm, CreateSceneForm, and CreateCharacterForm for the ideas, scenes, and characters pages
+from .serializers import UserSerializer
 from django.contrib.auth.mixins import LoginRequiredMixin # importing the LoginRequiredMixin for authentication
 from django.urls import reverse # importing the reverse function
 from django.contrib.auth.forms import UserCreationForm # importing the UserCreationForm for creating a new user
 from django.contrib.auth.models import User # importing the User model for creating a new user
-from django.contrib.auth import login # importing the login function for logging in a user right after they register
+from django.contrib.auth import authenticate, login # importing auth functions to authenticate a user and login a user
+
+# REST API auth imports
+from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.authtoken.models import Token
 
 
 class ShowAllIdeas(LoginRequiredMixin, ListView):
@@ -87,6 +95,7 @@ class UserRegistrationView(CreateView):
         response = super().form_valid(form) # calling the form_valid method to save the new user object and build the redirect to get_success_url()
         login(self.request, self.object) # logging in the user with the new userobject that was created
         return response 
+
 
 class SceneView(LoginRequiredMixin, DetailView):
     ''' Creating a view to show a scene '''
@@ -300,3 +309,56 @@ class CreateImageView(LoginRequiredMixin, CreateView):
             context['character'] = Character.objects.get(pk=self.kwargs['character_pk'])
 
         return context
+
+
+#  API Authentication Views
+
+class UserLoginAPIView(APIView):
+    ''' API view to login a user '''
+
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        ''' logins in a user and returns DRF token for React'''
+
+        username = request.data.get('username')
+        password = request.data.get('password')
+        user = authenticate(username=username, password=password)
+
+        if user is None:
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response(
+            {
+                'token': token.key,
+                'user_id': user.pk,
+                'username': user.username,
+            },
+            status = status.HTTP_200_OK # returning a 200 OK status code to indicate that the user was successfully logged in
+        )
+
+
+class UserRegistrationAPIView(APIView):
+    ''' API view to register a new user '''
+
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        ''' register a new user and return token '''
+        serializer = UserSerializer(data=request.data) # creating a new UserSerializer object with the data from the request
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        user = serializer.save()
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response(
+            {
+                'token': token.key,
+                'user_id': user.pk,
+                'username': user.username,
+            },
+            status = status.HTTP_201_CREATED # returning a 201 Created status code to indicate that the user was successfully registered
+        )
