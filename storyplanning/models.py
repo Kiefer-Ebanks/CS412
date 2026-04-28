@@ -58,7 +58,9 @@ class Scene(models.Model):
         ''' Gets all images for a scene. Returns a queryset of all images that are either tied to the scene or to a character in the scene '''
         
         # returns a queryset of all images that are either tied to the scene or to a character in the scene
-        return Image.objects.filter(scene=self) | Image.objects.filter(character__scene=self).distinct() # The distinct() method is used to remove duplicate images from the queryset in case there are any images that are tied to both the scene and a character in the scene
+        return (
+            Image.objects.filter(scene=self) | Image.objects.filter(character__scene=self)
+        ).distinct() # The distinct() method is used to remove duplicate images from the queryset in case there are any images that are tied to both the scene and a character in the scene
 
 
 class Character(models.Model):

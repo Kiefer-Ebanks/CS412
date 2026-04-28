@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic import ListView, CreateView, DetailView # importing the ListView, CreateView, and DetailView for the ideas page
 from .models import Idea, Scene, Character, Image # models for the story planning app
 from .forms import * # importing the CreateIdeaForm, CreateSceneForm, and CreateCharacterForm for the ideas, scenes, and characters pages
-from .serializers import UserSerializer
+from .serializers import IdeaSerializer, UserSerializer
 from django.contrib.auth.mixins import LoginRequiredMixin # importing the LoginRequiredMixin for authentication
 from django.urls import reverse # importing the reverse function
 from django.contrib.auth.forms import UserCreationForm # importing the UserCreationForm for creating a new user
@@ -21,6 +21,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
 
 
 class ShowAllIdeas(LoginRequiredMixin, ListView):
@@ -362,3 +364,23 @@ class UserRegistrationAPIView(APIView):
             },
             status = status.HTTP_201_CREATED # returning a 201 Created status code to indicate that the user was successfully registered
         )
+
+
+class IdeaListAPIView(generics.ListCreateAPIView):
+    ''' API view to list/create ideas for the authenticated user '''
+
+    serializer_class = IdeaSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Idea.objects.filter(user=self.request.user)
+
+
+class IdeaDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    ''' API view to retrieve/update/delete one of the authenticated user's ideas '''
+
+    serializer_class = IdeaSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Idea.objects.filter(user=self.request.user)

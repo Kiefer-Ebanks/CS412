@@ -43,4 +43,8 @@ urlpatterns = [
     # Authentication API Views:
     path(r'api/login/', UserLoginAPIView.as_view(), name='api_login'),
     path(r'api/register/', UserRegistrationAPIView.as_view(), name='api_register'),
+
+    # StoryPlanning API Views:
+    path(r'api/ideas/', IdeaListAPIView.as_view(), name='api_ideas'),
+    path(r'api/ideas/<int:pk>/', IdeaDetailAPIView.as_view(), name='api_idea'),
 ]
