@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password']
+        fields = ['id', 'username', 'password']
 
     def create(self, validated_data):
         ''' create a new user
@@ -30,7 +30,6 @@ class UserSerializer(serializers.ModelSerializer):
 
         return User.objects.create_user(
             username=validated_data['username'],
-            email=validated_data.get('email', ''),
             password=validated_data['password'],
         )
 
@@ -38,7 +37,6 @@ class UserSerializer(serializers.ModelSerializer):
         ''' updating a user's username, email, and password '''
 
         instance.username = validated_data.get('username', instance.username)
-        instance.email = validated_data.get('email', instance.email)
 
         if 'password' in validated_data and validated_data['password']: # checks the password is in the validated data
             instance.set_password(validated_data['password']) # sets the password for the instance but uses the set_password method to hash the password
