@@ -45,6 +45,13 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
+class ChangePasswordSerializer(serializers.Serializer):
+    ''' serializer class to validate the current password and new password for the change password endpoint '''
+
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True, min_length=1)
+
+
 class ImageSerializer(serializers.ModelSerializer):
     '''
     serializer class to convert an image from django model instance to JSON for API 

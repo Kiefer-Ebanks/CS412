@@ -366,6 +366,42 @@ class UserRegistrationAPIView(APIView):
         )
 
 
+class ChangePasswordAPIView(APIView):
+    ''' API view to change a user's password '''
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        ''' changing a user's password '''
+
+        serializer = ChangePasswordSerializer(data=request.data) # create a new ChangePasswordSerializer object with the data from the request
+        serializer.is_valid(raise_exception=True)
+        cur = serializer.validated_data['current_password'] # get the current password from the validated data
+        new_pw = serializer.validated_data['new_password'] # get the new password from the validated data
+        
+        if not request.user.check_password(cur): # check if the current password is correct
+            return Response(
+                {'error': 'Current password is incorrect'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        request.user.set_password(new_pw)
+        request.user.save()
+        return Response({'detail': 'Password updated'}, status=status.HTTP_200_OK)
+
+
+class DeleteAccountAPIView(APIView):
+    ''' API view to delete a user's account '''
+
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        ''' deleting a user's account and all related data '''
+
+        request.user.delete()  # this deletes the user from the database and cascades the delete to remove ideas, scenes, characters, images via FK on_delete rules
+
+        return Response(status=status.HTTP_204_NO_CONTENT) # returning a 204 No Content status code to indicate that the user's account was successfully deleted
+
+
 class IdeaListAPIView(generics.ListCreateAPIView):
     ''' API view to list/create ideas for the authenticated user '''
 

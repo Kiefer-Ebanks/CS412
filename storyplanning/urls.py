@@ -43,6 +43,8 @@ urlpatterns = [
     # Authentication API Views:
     path(r'api/login/', UserLoginAPIView.as_view(), name='api_login'),
     path(r'api/register/', UserRegistrationAPIView.as_view(), name='api_register'),
+    path(r'api/account/password/', ChangePasswordAPIView.as_view(), name='api_change_password'),
+    path(r'api/account/', DeleteAccountAPIView.as_view(), name='api_delete_account'),
 
     # StoryPlanning API Views:
     path(r'api/ideas/', IdeaListAPIView.as_view(), name='api_ideas'),
