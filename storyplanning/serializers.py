@@ -56,10 +56,32 @@ class ImageSerializer(serializers.ModelSerializer):
     image_url = serializers.URLField(allow_blank=True, required=False)
     image_file = serializers.ImageField(allow_null=True, required=False)
 
+    # read-only labels for the react frontend to display the idea, scene, and character titles
+    idea_title = serializers.CharField(source='idea.title', read_only=True)
+    scene_title = serializers.SerializerMethodField()
+    character_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Image
-        fields = ['id', 'image', 'image_url', 'image_file', 'description', 'timestamp', 'scene', 'character', 'idea']
+        fields = [
+            'id', 'image', 'image_url', 'image_file', 'description', 'timestamp', 'scene', 'character', 'idea', 'idea_title', 'scene_title', 'character_name',
+        ]
         read_only_fields = ['timestamp']
+
+    def get_scene_title(self, obj):
+        ''' scene FK is optional so we only return the scene's title if it exists '''
+
+        if obj.scene_id:
+            return obj.scene.title
+        else:
+            return None
+
+    def get_character_name(self, obj):
+        ''' character FK is optional so we only return the character's name if it exists '''
+        if obj.character_id:
+            return obj.character.name
+        else:
+            return None
 
     def get_image(self, obj):
         ''' returns the image url for an image
@@ -86,7 +108,7 @@ class ImageSerializer(serializers.ModelSerializer):
 class CharacterSerializer(serializers.ModelSerializer):
     ''' serializer class to convert a character from django model instance to JSON for the API with images for the character '''
 
-    images = ImageSerializer(many=True, read_only=True, source='get_all_images')
+    images = ImageSerializer(many=True, read_only=True, source='get_all_images') # using the ImageSerializer to serialize the images for the character
 
     class Meta:
         model = Character

@@ -408,3 +408,15 @@ class CharacterDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         ''' only get characters that belong to ideas owned by the user '''
 
         return Character.objects.filter(idea__user=self.request.user)
+
+
+class ImageDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    """ API view to get, update, or delete an image that belongs to one of the user's ideas """
+
+    serializer_class = ImageSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        ''' only get images for ideas owned by the user '''
+
+        return Image.objects.filter(idea__user=self.request.user)
