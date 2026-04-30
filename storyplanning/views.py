@@ -387,7 +387,7 @@ class IdeaDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class SceneDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-    ''' API view to get, update, or delete user's scene '''
+    ''' API view to get, update, or delete a scene '''
 
     serializer_class = SceneSerializer
     permission_classes = [IsAuthenticated]
@@ -396,3 +396,15 @@ class SceneDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         ''' only get scenes that belong to the authenticated user'''
 
         return Scene.objects.filter(idea__user=self.request.user)
+
+
+class CharacterDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    ''' API view to get, update, or delete a character '''
+
+    serializer_class = CharacterSerializer
+    permission_classes = [IsAuthenticated] # only allow authenticated users to access this view
+
+    def get_queryset(self):
+        ''' only get characters that belong to ideas owned by the user '''
+
+        return Character.objects.filter(idea__user=self.request.user)

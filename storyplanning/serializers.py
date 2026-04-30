@@ -84,11 +84,13 @@ class ImageSerializer(serializers.ModelSerializer):
 
 
 class CharacterSerializer(serializers.ModelSerializer):
-    ''' serializer class to convert a character from django model instance to JSON for API '''
+    ''' serializer class to convert a character from django model instance to JSON for the API with images for the character '''
+
+    images = ImageSerializer(many=True, read_only=True, source='get_all_images')
 
     class Meta:
         model = Character
-        fields = ['id', 'name', 'description', 'timestamp', 'idea', 'scene']
+        fields = ['id', 'name', 'description', 'timestamp', 'idea', 'scene', 'images']
         read_only_fields = ['timestamp']
 
 

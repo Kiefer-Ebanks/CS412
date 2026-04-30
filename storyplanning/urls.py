@@ -48,4 +48,5 @@ urlpatterns = [
     path(r'api/ideas/', IdeaListAPIView.as_view(), name='api_ideas'),
     path(r'api/ideas/<int:pk>/', IdeaDetailAPIView.as_view(), name='api_idea'),
     path(r'api/scenes/<int:pk>/', SceneDetailAPIView.as_view(), name='api_scene'),
+    path(r'api/characters/<int:pk>/', CharacterDetailAPIView.as_view(), name='api_character'),
 ]
