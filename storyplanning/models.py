@@ -21,19 +21,28 @@ class Idea(models.Model):
 
     def get_absolute_url(self):
         ''' returns the absolute url for the Idea model so when a new idea is created, it will redirect to the idea page '''
+        
         return reverse('idea', kwargs={'pk': self.pk})
 
     def get_all_scenes(self):
         ''' returns all scenes related to an idea by Foreign Key'''
+
         return Scene.objects.filter(idea=self)
 
     def get_all_characters(self):
         ''' returns all characters for an idea '''
+
         return Character.objects.filter(idea=self)
 
     def get_all_images(self):
         ''' returns all images for an idea '''
+
         return Image.objects.filter(idea=self)
+
+    def get_all_drawings(self):
+        ''' returns all drawings for an idea '''
+
+        return Drawing.objects.filter(idea=self)
         
 
 class Scene(models.Model):
@@ -62,6 +71,10 @@ class Scene(models.Model):
             Image.objects.filter(scene=self) | Image.objects.filter(character__scenes=self)
         ).distinct() # The distinct() method is used to remove duplicate images from the queryset in case there are any images that are tied to both the scene and a character in the scene
 
+    def get_all_drawings(self):
+        ''' returns all drawings linked directly to this scene '''
+        return Drawing.objects.filter(scene=self)
+
 
 class Character(models.Model):
     ''' models the data attributes of a character '''
@@ -82,6 +95,10 @@ class Character(models.Model):
         ''' returns all images for a character '''
 
         return Image.objects.filter(character=self)
+
+    def get_all_drawings(self):
+        ''' returns all drawings for a character '''
+        return Drawing.objects.filter(character=self)
 
 
 class Image(models.Model):
@@ -107,3 +124,22 @@ class Image(models.Model):
     def __str__(self):
         ''' returns a string representation of the Image model that is just the image_url '''
         return f'{self.description}'
+
+
+class Drawing(models.Model):
+    ''' models the data attributes for an Excalidraw drawing '''
+
+    title = models.TextField(blank=True) # optional title
+    scene_data = models.JSONField(default=dict, blank=True) # saved Excalidraw scene JSON used to reopen and continue editing
+    thumbnail_data_url = models.TextField(blank=True) # small preview image generated in the browser for the drawing
+    timestamp = models.DateTimeField(auto_now=True)
+    scene = models.ForeignKey(Scene, on_delete=models.CASCADE, null=True, blank=True) # linking the Drawing model to the Scene model with a foreign key
+    character = models.ForeignKey(Character, on_delete=models.CASCADE, null=True, blank=True) # linking the Drawing model to the Character model with a foreign key
+    idea = models.ForeignKey(Idea, on_delete=models.CASCADE) # linking the Drawing model to the Idea model with a foreign key
+
+    def __str__(self):
+        ''' returns a string representation of the Drawing model '''
+
+        if self.title: # if the title is not empty, return the title
+            return f'{self.title}'
+        return f'Drawing {self.pk}' # if the title is empty, return the drawing id

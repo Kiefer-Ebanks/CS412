@@ -6,7 +6,7 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.views.generic import ListView, CreateView, DetailView # importing the ListView, CreateView, and DetailView for the ideas page
-from .models import Idea, Scene, Character, Image # models for the story planning app
+from .models import Idea, Scene, Character, Image, Drawing # models for the story planning app
 from .forms import * # importing the CreateIdeaForm, CreateSceneForm, and CreateCharacterForm for the ideas, scenes, and characters pages
 from .serializers import *
 from django.contrib.auth.mixins import LoginRequiredMixin # importing the LoginRequiredMixin for authentication
@@ -491,32 +491,32 @@ class IdeaCharacterCreateAPIView(APIView):
         if not name:
             return Response({'error': 'Name is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        scene_ids = [] # normalized list of scene ids to validate and attach
+        scene_ids = [] # list of scene ids to validate and attach to the character
 
         if isinstance(scenes_input, list):
-            for raw_id in scenes_input:
-                if raw_id is None or str(raw_id).strip() == '':
+            for raw_id in scenes_input: # loop through the list of scene ids
+                if raw_id is None or str(raw_id).strip() == '': # check if the scene id is None or empty
                     continue
                 try:
-                    scene_ids.append(int(raw_id))
+                    scene_ids.append(int(raw_id)) # add the scene id to the list of scene ids
                 except (TypeError, ValueError):
                     return Response({'error': 'Invalid scene id in scenes list'}, status=status.HTTP_400_BAD_REQUEST)
         elif scenes_input is not None and str(scenes_input).strip() != '':
-            # also accept a single scalar scenes value and normalize it
+            # also accept a single scenes value
             try:
-                scene_ids.append(int(scenes_input))
+                scene_ids.append(int(scenes_input)) # add the scene id to the list of scene ids
             except (TypeError, ValueError):
                 return Response({'error': 'Invalid scenes value'}, status=status.HTTP_400_BAD_REQUEST)
 
         if scene_id is not None and str(scene_id).strip() != '':
-            # keep legacy "scene" support for older frontend callers
+            # keeping the old scene support for old accounts that were created using the old 1:1 Foreign Key relationship
             try:
-                scene_ids.append(int(scene_id))
+                scene_ids.append(int(scene_id)) # add the scene id to the list of scene ids
             except (TypeError, ValueError):
                 return Response({'error': 'Invalid scene value'}, status=status.HTTP_400_BAD_REQUEST)
 
-        unique_scene_ids = list(dict.fromkeys(scene_ids)) # dedupe while preserving request order
-        scenes = list(Scene.objects.filter(pk__in=unique_scene_ids, idea=idea, idea__user=request.user))
+        unique_scene_ids = list(dict.fromkeys(scene_ids)) # remove duplicate scene ids
+        scenes = list(Scene.objects.filter(pk__in=unique_scene_ids, idea=idea, idea__user=request.user)) # get the scenes from the database using the list of scene ids
         if len(scenes) != len(unique_scene_ids):
             return Response({'error': 'One or more scenes were not found for this idea'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -572,6 +572,48 @@ class IdeaImageCreateAPIView(APIView):
         return Response(ImageSerializer(image, context={'request': request}).data, status=status.HTTP_201_CREATED)
 
 
+class IdeaDrawingCreateAPIView(APIView):
+    ''' API view to create a drawing for one idea and optionally link it to scene and character '''
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, idea_pk):
+        ''' create a drawing under the idea from URL using the Excalidraw scene JSON and a drawing preview thumbnail '''
+
+        idea = get_object_or_404(Idea, pk=idea_pk, user=request.user) # get idea from URL
+        scene_id = request.data.get('scene') # optional scene id
+        character_id = request.data.get('character') # optional character id
+        title = str(request.data.get('title', '') or '') # optional title for the drawing
+        scene_data = request.data.get('scene_data') # required Excalidraw scene JSON from the request body
+        thumbnail_data_url = str(request.data.get('thumbnail_data_url', '') or '') # optional preview image from the request body
+
+        scene = None
+        character = None
+
+        if scene_id is not None and str(scene_id).strip() != '':
+            scene = Scene.objects.filter(pk=scene_id, idea=idea, idea__user=request.user).first()
+            if scene is None:
+                return Response({'error': 'Scene not found for this idea'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if character_id is not None and str(character_id).strip() != '':
+            character = Character.objects.filter(pk=character_id, idea=idea, idea__user=request.user).first()
+            if character is None:
+                return Response({'error': 'Character not found for this idea'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not isinstance(scene_data, dict):
+            return Response({'error': 'scene_data is required and must be a JSON object'}, status=status.HTTP_400_BAD_REQUEST)
+
+        drawing = Drawing.objects.create( # save new drawing with a preview thumbnail and the Excalidraw scene JSON
+            idea=idea,
+            scene=scene,
+            character=character,
+            title=title.strip(),
+            scene_data=scene_data,
+            thumbnail_data_url=thumbnail_data_url,
+        )
+        return Response(DrawingSerializer(drawing, context={'request': request}).data, status=status.HTTP_201_CREATED)
+
+
 class SceneDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     ''' API view to get, update, or delete a scene '''
 
@@ -606,3 +648,15 @@ class ImageDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         ''' only get images for ideas owned by the user '''
 
         return Image.objects.filter(idea__user=self.request.user)
+
+
+class DrawingDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    ''' API view to get, update, or delete a drawing that belongs to one of the user ideas '''
+
+    serializer_class = DrawingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        ''' only get drawings for ideas owned by the user '''
+        
+        return Drawing.objects.filter(idea__user=self.request.user)

@@ -4,7 +4,7 @@
 
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Idea, Scene, Character, Image
+from .models import Idea, Scene, Character, Image, Drawing
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -118,16 +118,46 @@ class ImageSerializer(serializers.ModelSerializer):
         return url
 
 
+class DrawingSerializer(serializers.ModelSerializer):
+    ''' serializer class to convert a drawing from django model instance to JSON for API '''
+
+    idea_title = serializers.CharField(source='idea.title', read_only=True)
+    scene_title = serializers.SerializerMethodField() # scene FK is optional so we only return the scene title when it exists
+    character_name = serializers.SerializerMethodField() # character FK is optional so we only return the character name when it exists
+
+    class Meta:
+        model = Drawing
+        fields = [
+            'id', 'title', 'scene_data', 'thumbnail_data_url', 'timestamp', 'scene', 'character', 'idea', 'idea_title', 'scene_title', 'character_name',
+        ]
+        read_only_fields = ['timestamp']
+
+    def get_scene_title(self, obj):
+        ''' scene FK is optional so we only return the scene title when it exists '''
+
+        if obj.scene_id:
+            return obj.scene.title
+        return None
+
+    def get_character_name(self, obj):
+        ''' character FK is optional so we only return the character name when it exists '''
+
+        if obj.character_id:
+            return obj.character.name
+        return None
+
+
 class CharacterSerializer(serializers.ModelSerializer):
     ''' serializer class to convert a character from django model instance to JSON for the API with images for the character '''
 
     images = ImageSerializer(many=True, read_only=True, source='get_all_images') # using the ImageSerializer to serialize the images for the character
+    drawings = DrawingSerializer(many=True, read_only=True, source='get_all_drawings') # include drawings linked to this character
     scenes = serializers.PrimaryKeyRelatedField(many=True, queryset=Scene.objects.all(), required=False) # return and allow updating all linked scene ids for the character
     scene = serializers.SerializerMethodField() # compatibility field so existing clients can still read one scene id (keeping this here because I had some accounts that were created using the old 1:1 Foreign Key relationship)
 
     class Meta:
         model = Character
-        fields = ['id', 'name', 'description', 'timestamp', 'idea', 'scene', 'scenes', 'images']
+        fields = ['id', 'name', 'description', 'timestamp', 'idea', 'scene', 'scenes', 'images', 'drawings']
         read_only_fields = ['timestamp']
 
     def get_scene(self, obj):
@@ -165,10 +195,11 @@ class SceneSerializer(serializers.ModelSerializer):
 
     characters = CharacterSerializer(many=True, read_only=True, source='get_all_characters')
     images = ImageSerializer(many=True, read_only=True, source='get_all_images')
+    drawings = DrawingSerializer(many=True, read_only=True, source='get_all_drawings') # include drawings linked to this scene
 
     class Meta:
         model = Scene
-        fields = ['id', 'title', 'outline', 'script', 'timestamp', 'idea', 'characters', 'images']
+        fields = ['id', 'title', 'outline', 'script', 'timestamp', 'idea', 'characters', 'images', 'drawings']
         read_only_fields = ['timestamp']
 
 
@@ -179,10 +210,11 @@ class IdeaSerializer(serializers.ModelSerializer):
     scenes = SceneSerializer(many=True, read_only=True, source='get_all_scenes')
     characters = CharacterSerializer(many=True, read_only=True, source='get_all_characters')
     images = ImageSerializer(many=True, read_only=True, source='get_all_images')
+    drawings = DrawingSerializer(many=True, read_only=True, source='get_all_drawings') # include drawings linked to this idea
 
     class Meta:
         model = Idea
-        fields = ['id', 'title', 'storyboard', 'timestamp', 'user', 'scenes', 'characters', 'images']
+        fields = ['id', 'title', 'storyboard', 'timestamp', 'user', 'scenes', 'characters', 'images', 'drawings']
         read_only_fields = ['timestamp', 'user']
 
     def create(self, validated_data):

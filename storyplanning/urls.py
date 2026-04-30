@@ -41,19 +41,21 @@ urlpatterns = [
     path(r'register/', UserRegistrationView.as_view(), name='register'), # providing the template and register form via the RegistrationView
 
     # Authentication API Views:
-    path(r'api/login/', UserLoginAPIView.as_view(), name='api_login'),
-    path(r'api/register/', UserRegistrationAPIView.as_view(), name='api_register'),
-    path(r'api/account/password/', ChangePasswordAPIView.as_view(), name='api_change_password'),
-    path(r'api/account/username/', ChangeUsernameAPIView.as_view(), name='api_change_username'),
-    path(r'api/account/', DeleteAccountAPIView.as_view(), name='api_delete_account'),
+    path(r'api/login/', UserLoginAPIView.as_view(), name='api_login'), # API view to login a user
+    path(r'api/register/', UserRegistrationAPIView.as_view(), name='api_register'), # API view to register a new user
+    path(r'api/account/password/', ChangePasswordAPIView.as_view(), name='api_change_password'), # API view to change a user's password
+    path(r'api/account/username/', ChangeUsernameAPIView.as_view(), name='api_change_username'), # API view to change a user's username
+    path(r'api/account/', DeleteAccountAPIView.as_view(), name='api_delete_account'), # API view to delete a user's account
 
     # StoryPlanning API Views:
-    path(r'api/ideas/', IdeaListAPIView.as_view(), name='api_ideas'),
-    path(r'api/ideas/<int:pk>/', IdeaDetailAPIView.as_view(), name='api_idea'),
-    path(r'api/ideas/<int:idea_pk>/scenes/', IdeaSceneCreateAPIView.as_view(), name='api_create_scene_for_idea'),
-    path(r'api/ideas/<int:idea_pk>/characters/', IdeaCharacterCreateAPIView.as_view(), name='api_create_character_for_idea'),
-    path(r'api/ideas/<int:idea_pk>/images/', IdeaImageCreateAPIView.as_view(), name='api_create_image_for_idea'),
-    path(r'api/scenes/<int:pk>/', SceneDetailAPIView.as_view(), name='api_scene'),
-    path(r'api/characters/<int:pk>/', CharacterDetailAPIView.as_view(), name='api_character'),
-    path(r'api/images/<int:pk>/', ImageDetailAPIView.as_view(), name='api_image'),
+    path(r'api/ideas/', IdeaListAPIView.as_view(), name='api_ideas'), # API view to list all ideas for the authenticated user
+    path(r'api/ideas/<int:pk>/', IdeaDetailAPIView.as_view(), name='api_idea'), # API view to get, update, or delete one of the authenticated user's ideas
+    path(r'api/ideas/<int:idea_pk>/scenes/', IdeaSceneCreateAPIView.as_view(), name='api_create_scene_for_idea'), # API view to create a scene for one idea
+    path(r'api/ideas/<int:idea_pk>/characters/', IdeaCharacterCreateAPIView.as_view(), name='api_create_character_for_idea'), # API view to create a character for one idea
+    path(r'api/ideas/<int:idea_pk>/images/', IdeaImageCreateAPIView.as_view(), name='api_create_image_for_idea'), # API view to create an image for one idea
+    path(r'api/ideas/<int:idea_pk>/drawings/', IdeaDrawingCreateAPIView.as_view(), name='api_create_drawing_for_idea'), # API view to create a drawing for one idea
+    path(r'api/scenes/<int:pk>/', SceneDetailAPIView.as_view(), name='api_scene'), # API view to get, update, or delete a scene
+    path(r'api/characters/<int:pk>/', CharacterDetailAPIView.as_view(), name='api_character'), # API view to get, update, or delete a character
+    path(r'api/images/<int:pk>/', ImageDetailAPIView.as_view(), name='api_image'), # API view to get, update, or delete an image
+    path(r'api/drawings/<int:pk>/', DrawingDetailAPIView.as_view(), name='api_drawing'), # API view to get, update, or delete a drawing
 ]
