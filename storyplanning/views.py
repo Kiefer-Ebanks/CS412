@@ -472,6 +472,37 @@ class IdeaSceneCreateAPIView(APIView):
         return Response(SceneSerializer(scene, context={'request': request}).data, status=status.HTTP_201_CREATED)
 
 
+class IdeaCharacterCreateAPIView(APIView):
+    ''' API view to create a character for one idea and potentially link it to a scene for the idea too '''
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, idea_pk):
+        ''' create a character under the idea from URL; optional scene must belong to same idea+user '''
+
+        idea = get_object_or_404(Idea, pk=idea_pk, user=request.user) # get the idea from the database using the idea_pk from the URL and the user from the request
+        name = str(request.data.get('name', '')).strip() # get the name from the request data and strip any whitespace
+        description = str(request.data.get('description', '') or '') # get the description from the request data
+        scene_id = request.data.get('scene') # get the scene id from the request data
+        scene = None # initialize the scene to None
+
+        if not name:
+            return Response({'error': 'Name is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if scene_id is not None and str(scene_id).strip() != '':
+            scene = Scene.objects.filter(pk=scene_id, idea=idea, idea__user=request.user).first() # get the scene from the database using the scene_id from the request data
+            if scene is None:
+                return Response({'error': 'Scene not found for this idea'}, status=status.HTTP_400_BAD_REQUEST)
+
+        character = Character.objects.create( # create a new Character object with the saved idea, scene, name, and description
+            idea=idea, # add the foreign key of the idea to the character object before saving it to the database
+            scene=scene, # add the foreign key of the scene to the character object
+            name=name, # add the name to the character
+            description=description, # add the description to the character
+        )
+        return Response(CharacterSerializer(character, context={'request': request}).data, status=status.HTTP_201_CREATED)
+
+
 class SceneDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     ''' API view to get, update, or delete a scene '''
 
