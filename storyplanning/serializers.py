@@ -64,11 +64,23 @@ class ImageSerializer(serializers.ModelSerializer):
     def get_image(self, obj):
         ''' returns the image url for an image
         The django Rest Framework will call the get_image method automatically to get the image url for an image when the ImageSerializer is serialized'''
-        
-        if obj:
-            return obj.get_image_url()
-        else:
+
+        if not obj:
             return None
+
+        # my function get_image_url() returns a full URL for image_url, but for uploaded files it returns a media path like /media/...
+        url = obj.get_image_url()
+
+        if not url:
+            return None
+
+        # since react is running on a different port than Django, the media path would break the img src call for the image because the browser would look for /media/... 
+        # so instead we build a full URL using the request so the client always gets a proper url for the image
+        request = self.context.get('request') # get the request from the context
+        
+        if request and url.startswith('/'): # if the url starts with a slash, then build a full URL using the request
+            return request.build_absolute_uri(url) # build a full URL using the request
+        return url
 
 
 class CharacterSerializer(serializers.ModelSerializer):
