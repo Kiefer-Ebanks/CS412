@@ -389,6 +389,31 @@ class ChangePasswordAPIView(APIView):
         return Response({'detail': 'Password updated'}, status=status.HTTP_200_OK)
 
 
+class ChangeUsernameAPIView(APIView):
+    ''' API view to change a user's username '''
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        ''' change authenticated user's username '''
+
+        serializer = ChangeUsernameSerializer(data=request.data) # validates the new username from request body
+        serializer.is_valid(raise_exception=True)
+        new_name = serializer.validated_data['new_username'].strip() # get the new username from the validated data and strip any whitespace
+
+        if not new_name:
+            return Response({'error': 'Username cannot be blank'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # keep usernames unique by checking if the new username already exists in the database
+        if User.objects.filter(username=new_name).exclude(pk=request.user.pk).exists():
+            return Response({'error': 'That username is already taken'}, status=status.HTTP_400_BAD_REQUEST)
+
+        request.user.username = new_name # set the new username to the user's username
+        request.user.save() # save the new username to the database
+        
+        return Response({'detail': 'Username updated', 'username': request.user.username}, status=status.HTTP_200_OK) # returning a 200 OK status code to indicate that the user's username was successfully updated
+
+
 class DeleteAccountAPIView(APIView):
     ''' API view to delete a user's account '''
 

@@ -52,6 +52,12 @@ class ChangePasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True, min_length=1)
 
 
+class ChangeUsernameSerializer(serializers.Serializer):
+    ''' serializer class to validate username changes '''
+
+    # new username is required to be a write-only field and must be at least 1 character long to prevent empty usernames
+    new_username = serializers.CharField(write_only=True, min_length=1) 
+
 class ImageSerializer(serializers.ModelSerializer):
     '''
     serializer class to convert an image from django model instance to JSON for API 
