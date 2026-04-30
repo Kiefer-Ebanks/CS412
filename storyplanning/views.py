@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic import ListView, CreateView, DetailView # importing the ListView, CreateView, and DetailView for the ideas page
 from .models import Idea, Scene, Character, Image # models for the story planning app
 from .forms import * # importing the CreateIdeaForm, CreateSceneForm, and CreateCharacterForm for the ideas, scenes, and characters pages
-from .serializers import IdeaSerializer, UserSerializer
+from .serializers import *
 from django.contrib.auth.mixins import LoginRequiredMixin # importing the LoginRequiredMixin for authentication
 from django.urls import reverse # importing the reverse function
 from django.contrib.auth.forms import UserCreationForm # importing the UserCreationForm for creating a new user
@@ -384,3 +384,15 @@ class IdeaDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Idea.objects.filter(user=self.request.user)
+
+
+class SceneDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    ''' API view to get, update, or delete user's scene '''
+
+    serializer_class = SceneSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        ''' only get scenes that belong to the authenticated user'''
+
+        return Scene.objects.filter(idea__user=self.request.user)
