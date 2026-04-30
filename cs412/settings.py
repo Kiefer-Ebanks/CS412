@@ -156,18 +156,22 @@ REST_FRAMEWORK = {
 
 # Need to allow cors because without it, the dadjokes and storyplanning api will not work in the browser
 
-# Comma-separated HTTPS origins for the deployed React app (BU server env var, not Vite — see frontend .env.example for VITE_API_BASE_URL).
-# Example: export STORYPLANNING_FRONTEND_ORIGINS=https://filmboard.vercel.app
+# Hosted React on Vercel (see frontend VITE_API_BASE_URL). Kept in code so BU git deploy works without Apache env.
+# Optional extra origins: STORYPLANNING_FRONTEND_ORIGINS=https://preview-123.vercel.app (comma-separated)
 _extra_frontend_origins = [
     origin.strip()
     for origin in os.environ.get('STORYPLANNING_FRONTEND_ORIGINS', '').split(',')
     if origin.strip()
 ]
+_deployed_storyplanning_react_origins = list(dict.fromkeys([
+    'https://filmboard-ashen.vercel.app',
+    *_extra_frontend_origins,
+]))
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
-    *_extra_frontend_origins,
+    *_deployed_storyplanning_react_origins,
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -175,5 +179,5 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
-    *_extra_frontend_origins,
+    *_deployed_storyplanning_react_origins,
 ]
