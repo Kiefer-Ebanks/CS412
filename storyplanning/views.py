@@ -503,6 +503,48 @@ class IdeaCharacterCreateAPIView(APIView):
         return Response(CharacterSerializer(character, context={'request': request}).data, status=status.HTTP_201_CREATED)
 
 
+class IdeaImageCreateAPIView(APIView):
+    ''' API view to create an image for one idea and optionally link it to a scene/character under that same idea '''
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, idea_pk):
+        ''' create an image under the idea from URL; accepts image_file upload or image_url link plus optional description '''
+
+        idea = get_object_or_404(Idea, pk=idea_pk, user=request.user) # get the idea from the URL and ensure ownership
+        scene_id = request.data.get('scene') # optional scene id from form/json body
+        character_id = request.data.get('character') # optional character id from form/json body
+        description = str(request.data.get('description', '') or '') # optional description text
+        image_url = str(request.data.get('image_url', '') or '').strip() # optional external URL
+        image_file = request.FILES.get('image_file') # optional uploaded file
+
+        scene = None # initialize the scene to None since the user may not have created the image from the scene detail page
+        character = None # initialize the character to None since the user may not have created the image from the character detail page
+
+        if scene_id is not None and str(scene_id).strip() != '':
+            scene = Scene.objects.filter(pk=scene_id, idea=idea, idea__user=request.user).first() # get the scene from the database using the scene_id from the request data
+            if scene is None:
+                return Response({'error': 'Scene not found for this idea'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if character_id is not None and str(character_id).strip() != '':
+            character = Character.objects.filter(pk=character_id, idea=idea, idea__user=request.user).first() # get the character from the database using the character_id from the request data
+            if character is None:
+                return Response({'error': 'Character not found for this idea'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not image_file and not image_url:
+            return Response({'error': 'Provide either image_file or image_url'}, status=status.HTTP_400_BAD_REQUEST)
+
+        image = Image.objects.create( # create the image row and link to whichever parent rows were supplied 
+            idea=idea,
+            scene=scene,
+            character=character,
+            image_url=image_url,
+            image_file=image_file,
+            description=description,
+        )
+        return Response(ImageSerializer(image, context={'request': request}).data, status=status.HTTP_201_CREATED)
+
+
 class SceneDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     ''' API view to get, update, or delete a scene '''
 
