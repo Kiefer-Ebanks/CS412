@@ -447,6 +447,31 @@ class IdeaDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         return Idea.objects.filter(user=self.request.user)
 
 
+class IdeaSceneCreateAPIView(APIView):
+    ''' API view to create a scene for one idea '''
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, idea_pk):
+        ''' create a scene under the idea from the URL '''
+
+        idea = get_object_or_404(Idea, pk=idea_pk, user=request.user) # get the idea from the database using the idea_pk from the URL and the user from the request
+        title = str(request.data.get('title', '')).strip() # get the title from the request data and strip any whitespace
+        outline = str(request.data.get('outline', '') or '') # get the outline from the request data
+        script = str(request.data.get('script', '') or '') # get the script from the request data
+
+        if not title:
+            return Response({'error': 'Title is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        scene = Scene.objects.create( # create a new Scene object with the saved idea, title, outline, and script
+            idea=idea,
+            title=title,
+            outline=outline,
+            script=script,
+        )
+        return Response(SceneSerializer(scene, context={'request': request}).data, status=status.HTTP_201_CREATED)
+
+
 class SceneDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     ''' API view to get, update, or delete a scene '''
 
