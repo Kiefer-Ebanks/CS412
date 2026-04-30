@@ -52,14 +52,14 @@ class Scene(models.Model):
     def get_all_characters(self):
         ''' returns all characters for a scene '''
 
-        return Character.objects.filter(scene=self)
+        return Character.objects.filter(scenes=self)
 
     def get_all_images(self):
         ''' Gets all images for a scene. Returns a queryset of all images that are either tied to the scene or to a character in the scene '''
         
         # returns a queryset of all images that are either tied to the scene or to a character in the scene
         return (
-            Image.objects.filter(scene=self) | Image.objects.filter(character__scene=self)
+            Image.objects.filter(scene=self) | Image.objects.filter(character__scenes=self)
         ).distinct() # The distinct() method is used to remove duplicate images from the queryset in case there are any images that are tied to both the scene and a character in the scene
 
 
@@ -71,7 +71,7 @@ class Character(models.Model):
     description = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now=True)
     idea = models.ForeignKey(Idea, on_delete=models.CASCADE) # linking the Character model to the Idea model with a foreign key
-    scene = models.ForeignKey(Scene, on_delete=models.CASCADE, null=True, blank=True) # linking the Character model to the Scene model with a foreign key
+    scenes = models.ManyToManyField(Scene, blank=True, related_name='characters') # linking the Character model to many Scene rows
 
 
     def __str__(self):

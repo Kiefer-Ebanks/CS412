@@ -122,11 +122,42 @@ class CharacterSerializer(serializers.ModelSerializer):
     ''' serializer class to convert a character from django model instance to JSON for the API with images for the character '''
 
     images = ImageSerializer(many=True, read_only=True, source='get_all_images') # using the ImageSerializer to serialize the images for the character
+    scenes = serializers.PrimaryKeyRelatedField(many=True, queryset=Scene.objects.all(), required=False) # return and allow updating all linked scene ids for the character
+    scene = serializers.SerializerMethodField() # compatibility field so existing clients can still read one scene id (keeping this here because I had some accounts that were created using the old 1:1 Foreign Key relationship)
 
     class Meta:
         model = Character
-        fields = ['id', 'name', 'description', 'timestamp', 'idea', 'scene', 'images']
+        fields = ['id', 'name', 'description', 'timestamp', 'idea', 'scene', 'scenes', 'images']
         read_only_fields = ['timestamp']
+
+    def get_scene(self, obj):
+        ''' compatibility helper returning the first linked scene id or None '''
+
+        first_scene = obj.scenes.first()
+        if first_scene:
+            return first_scene.pk
+        return None
+
+    def validate_scenes(self, scenes):
+        ''' ensure all selected scenes belong to the same idea as this character '''
+
+        character = self.instance
+        idea = character.idea if character else None
+        if idea is None:
+            idea = self.initial_data.get('idea')
+            if idea is not None:
+                try:
+                    idea = Idea.objects.get(pk=idea)
+                except Idea.DoesNotExist:
+                    raise serializers.ValidationError('Idea not found')
+
+        if idea is None:
+            return scenes
+
+        invalid_scene = next((scene for scene in scenes if scene.idea_id != idea.id), None)
+        if invalid_scene is not None:
+            raise serializers.ValidationError('Each selected scene must belong to this character idea')
+        return scenes
 
 
 class SceneSerializer(serializers.ModelSerializer):

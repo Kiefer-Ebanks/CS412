@@ -179,11 +179,13 @@ class CreateCharacterView(LoginRequiredMixin, CreateView):
         ''' Adding the idea and scene objects to the character and save it '''
 
         form.instance.idea = Idea.objects.get(pk=self.kwargs['idea_pk']) # adding the foreign key of the idea to the character object before saving it to the database
+        response = super().form_valid(form)
 
         if 'scene_pk' in self.kwargs:
-            form.instance.scene = Scene.objects.get(pk=self.kwargs['scene_pk']) # adding the foreign key of the scene to the character object before saving it to the database
+            scene = Scene.objects.get(pk=self.kwargs['scene_pk']) # add one scene link when this character is created from a scene route
+            self.object.scenes.add(scene)
 
-        return super().form_valid(form)
+        return response
 
     def get_success_url(self):
         ''' Redirect the user to the idea page after creating a scene '''
@@ -478,28 +480,53 @@ class IdeaCharacterCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, idea_pk):
-        ''' create a character under the idea from URL; optional scene must belong to same idea+user '''
+        ''' create a character under the idea from URL and potentially add them to one or more scenes '''
 
         idea = get_object_or_404(Idea, pk=idea_pk, user=request.user) # get the idea from the database using the idea_pk from the URL and the user from the request
         name = str(request.data.get('name', '')).strip() # get the name from the request data and strip any whitespace
         description = str(request.data.get('description', '') or '') # get the description from the request data
-        scene_id = request.data.get('scene') # get the scene id from the request data
-        scene = None # initialize the scene to None
+        scenes_input = request.data.get('scenes') # optional list of scene ids from the request body
+        scene_id = request.data.get('scene') # backward-compatible optional single scene id from the request body (for old 1:1 Foreign Key relationship)
 
         if not name:
             return Response({'error': 'Name is required'}, status=status.HTTP_400_BAD_REQUEST)
 
+        scene_ids = [] # normalized list of scene ids to validate and attach
+
+        if isinstance(scenes_input, list):
+            for raw_id in scenes_input:
+                if raw_id is None or str(raw_id).strip() == '':
+                    continue
+                try:
+                    scene_ids.append(int(raw_id))
+                except (TypeError, ValueError):
+                    return Response({'error': 'Invalid scene id in scenes list'}, status=status.HTTP_400_BAD_REQUEST)
+        elif scenes_input is not None and str(scenes_input).strip() != '':
+            # also accept a single scalar scenes value and normalize it
+            try:
+                scene_ids.append(int(scenes_input))
+            except (TypeError, ValueError):
+                return Response({'error': 'Invalid scenes value'}, status=status.HTTP_400_BAD_REQUEST)
+
         if scene_id is not None and str(scene_id).strip() != '':
-            scene = Scene.objects.filter(pk=scene_id, idea=idea, idea__user=request.user).first() # get the scene from the database using the scene_id from the request data
-            if scene is None:
-                return Response({'error': 'Scene not found for this idea'}, status=status.HTTP_400_BAD_REQUEST)
+            # keep legacy "scene" support for older frontend callers
+            try:
+                scene_ids.append(int(scene_id))
+            except (TypeError, ValueError):
+                return Response({'error': 'Invalid scene value'}, status=status.HTTP_400_BAD_REQUEST)
+
+        unique_scene_ids = list(dict.fromkeys(scene_ids)) # dedupe while preserving request order
+        scenes = list(Scene.objects.filter(pk__in=unique_scene_ids, idea=idea, idea__user=request.user))
+        if len(scenes) != len(unique_scene_ids):
+            return Response({'error': 'One or more scenes were not found for this idea'}, status=status.HTTP_400_BAD_REQUEST)
 
         character = Character.objects.create( # create a new Character object with the saved idea, scene, name, and description
             idea=idea, # add the foreign key of the idea to the character object before saving it to the database
-            scene=scene, # add the foreign key of the scene to the character object
             name=name, # add the name to the character
             description=description, # add the description to the character
         )
+        if scenes:
+            character.scenes.set(scenes) # attach all validated scene links to this character
         return Response(CharacterSerializer(character, context={'request': request}).data, status=status.HTTP_201_CREATED)
 
 

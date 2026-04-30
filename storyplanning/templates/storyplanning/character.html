@@ -8,16 +8,23 @@
 
 <a href="{% url 'idea' character.idea.pk %}">Back to Idea</a>
 
-{% if character.scene %}
-    <a href="{% url 'scene' character.idea.pk character.scene.pk %}">Back to Scene</a>
+{% with first_scene=character.scenes.first %}
+{% if first_scene %}
+    <a href="{% url 'scene' character.idea.pk first_scene.pk %}">Back to Scene</a>
 {% endif %}
+{% endwith %}
 
 <h1>Character: {{ character.name }}</h1>
 <p>Description: {{ character.description }}</p>
 
 
-{% if character.scene %}
-    <p>Scene: {{ character.scene.title }}</p>
+{% if character.scenes.count > 0 %}
+    <p>Scenes:</p>
+    <ul>
+        {% for scene in character.scenes.all %}
+            <li>{{ scene.title }}</li>
+        {% endfor %}
+    </ul>
 {% endif %}
 
 {% if character.idea %}
